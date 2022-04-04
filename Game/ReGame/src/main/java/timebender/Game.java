@@ -1,6 +1,7 @@
 package timebender;
 
 import timebender.assets.Assets;
+import timebender.gameobjects.Player;
 import timebender.gameobjects.controllers.KeyboardController;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
@@ -56,7 +57,7 @@ public class Game implements Runnable {
     /**
      * Method responsable for configuring the initialisation parameters of the Game
      */
-    public Body testBody;
+    public Player player;
     private void initGame() {
         // Only if the game runs on graphics mode
         gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
@@ -67,12 +68,9 @@ public class Game implements Runnable {
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
-        testBody = new Body(
-                new PointVector(0,0),//Tile.TILE_WIDTH * 2, Tile.TILE_HEIGHT * 13 - 100),
-                20, 40,
-                47);
-        testBody.setBodyColor(Color.CYAN);
-        keyInput.addKeyboardController(new KeyboardController(testBody));
+        player = new Player(
+                new PointVector(Tile.TILE_WIDTH * 2, Tile.TILE_HEIGHT * 13 - 100));
+        keyInput.addKeyboardController(new KeyboardController(player.getBody()));
 
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
@@ -148,7 +146,7 @@ public class Game implements Runnable {
         gameWindow.getJFrame().requestFocus();
 
         // To check body
-        testBody.update(gameMap);
+        player.Update(gameMap);
     }
 
     /**
@@ -176,7 +174,7 @@ public class Game implements Runnable {
         // Draw the map
         if(gameMap != null) {
             gameMap.draw(g);
-            testBody.draw(g);
+            player.Draw(g);
         }
 
         bufferStrategy.show();

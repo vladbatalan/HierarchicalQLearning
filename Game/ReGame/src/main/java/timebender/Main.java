@@ -1,13 +1,7 @@
 package timebender;
 
-import timebender.map.Map;
-
-import static timebender.map.MapBuilder.BuildFromXmlFile;
-
-public class Main
-{
-    public static void main(String[] args)
-    {
+public class Main {
+    public static void main(String[] args) {
 
         Game timeBenderGame = new Game();
 

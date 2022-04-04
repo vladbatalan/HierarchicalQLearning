@@ -3,8 +3,11 @@ package timebender.physics.states;
 import timebender.Logger;
 import timebender.physics.Body;
 import timebender.physics.PointVector;
+import timebender.physics.enums.Actions;
 import timebender.physics.states.movestates.NoJumpState;
 import timebender.physics.states.movestates.StandState;
+
+import static timebender.physics.enums.Actions.*;
 
 /**
  * Class responsable with the movement of the body.
@@ -31,11 +34,11 @@ public class MoveStateManager {
         moveState = moveState.nextState(command);
         jumpState = jumpState.nextState(command);
 
-        if(!(moveState.toString() + jumpState.toString()).equals(lastMove)) {
-//            Logger.PrintEndline();
-//            Logger.Print("MoveState: " + moveState);
-//            Logger.Print("JumpState: " + jumpState);
-        }
+//        if(!(moveState.toString() + jumpState.toString()).equals(lastMove)) {
+////            Logger.PrintEndline();
+////            Logger.Print("MoveState: " + moveState);
+////            Logger.Print("JumpState: " + jumpState);
+//        }
     }
 
     public void changeMoveState(IMoveState nextState){
@@ -54,8 +57,13 @@ public class MoveStateManager {
         return  jumpState.getMovementVector();
     }
 
-//
-//    public boolean[] getStateFlags(){
-//        return new boolean[5];
-//    }
+    public boolean[] getStateFlags(){
+        boolean[] stateFlags = new boolean[3];
+
+        stateFlags[MOVE_LEFT.getValue()] = moveState.toString().equals("MoveLeftState");
+        stateFlags[MOVE_RIGHT.getValue()] = moveState.toString().equals("MoveRightState");
+        stateFlags[JUMP.getValue()] = moveState.toString().equals("JumpState");
+
+        return stateFlags;
+    }
 }

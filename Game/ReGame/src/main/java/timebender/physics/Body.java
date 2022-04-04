@@ -30,7 +30,6 @@ public class Body {
     // The component that manage the jump state of the body.
     private final JumpComponent jumpComponent = new JumpComponent();
 
-
     private Color bodyColor = new Color(0, 0, 0, 0);
 
     public Body(PointVector position, int bodyWidth, int bodyHeight, float mass) {
@@ -86,18 +85,12 @@ public class Body {
         resultantForce = nextPosition.sub(position);
 
         // Ajust the resultant force based on collisionStates
-        resultantForce = adjustResultingForceOnCollision(resultantForce);
+        adjustResultingForceOnCollision(resultantForce);
 
         PointVector oldPosition = new PointVector(position);
 
         // Update the position
-        position = position.add(resultantForce);//nextPosition;//.sub(resultantForce);
-
-//        if(!oldPosition.equals(position)){
-//            Logger.Print("Position changed to " + position.toString());
-//        }
-//
-//        Logger.Print(resultantForce.toString());
+        position = position.add(resultantForce);
 
     }
 
@@ -111,7 +104,7 @@ public class Body {
         g.fillRect((int) position.getX(), (int) position.getY(), bodyWidth, bodyHeight);
     }
 
-    public PointVector adjustResultingForceOnCollision(PointVector resultantForce) {
+    private void adjustResultingForceOnCollision(PointVector resultantForce) {
 
         // This function takes into consideration the current resultant force
         // and the current Collision state which is modified by interaction with the map, or base on
@@ -141,8 +134,6 @@ public class Body {
                 resultantForce.setX(0);
             }
         }
-
-        return resultantForce;
     }
 
     /**
@@ -213,6 +204,10 @@ public class Body {
 
     public MoveStateManager getMoveStateManager() {
         return moveStateManager;
+    }
+
+    public boolean[] getStateFlags(){
+        return moveStateManager.getStateFlags();
     }
 }
 
