@@ -1,9 +1,9 @@
 package timebender.physics;
 
-import timebender.Logger;
 import timebender.map.Map;
-import timebender.physics.states.IMoveState;
+import timebender.physics.states.movestates.IMoveState;
 import timebender.physics.states.MoveStateManager;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 

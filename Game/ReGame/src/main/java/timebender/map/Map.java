@@ -6,7 +6,7 @@ import timebender.assets.ImageLoader;
 import timebender.map.tiles.Tile;
 import timebender.map.tiles.types.TileFactory;
 import timebender.map.utils.MapUtils;
-import timebender.physics.PointVector;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

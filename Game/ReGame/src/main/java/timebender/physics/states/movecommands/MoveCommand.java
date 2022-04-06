@@ -1,8 +1,5 @@
 package timebender.physics.states.movecommands;
 
-import timebender.physics.states.IMoveCommand;
-import timebender.physics.states.MoveCommandType;
-
 public class MoveCommand implements IMoveCommand {
     private MoveCommandType commandType;
     private int frameTimestamp;

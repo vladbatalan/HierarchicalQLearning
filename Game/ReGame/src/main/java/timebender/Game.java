@@ -1,14 +1,14 @@
 package timebender;
 
 import timebender.assets.Assets;
-import timebender.gameobjects.Player;
+import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
+import timebender.gameobjects.stills.TimeMachine;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.map.Map;
 import timebender.map.tiles.Tile;
-import timebender.physics.Body;
-import timebender.physics.PointVector;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -58,6 +58,7 @@ public class Game implements Runnable {
      * Method responsable for configuring the initialisation parameters of the Game
      */
     public Player player;
+    public TimeMachine timeMachine;
     private void initGame() {
         // Only if the game runs on graphics mode
         gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
@@ -68,9 +69,12 @@ public class Game implements Runnable {
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
-        player = new Player(
-                new PointVector(Tile.TILE_WIDTH * 2, Tile.TILE_HEIGHT * 13 - 100));
+        player = new Player()
+                .positionedInTileCoordinates(2, 13);
         keyInput.addKeyboardController(new KeyboardController(player.getBody()));
+
+        timeMachine = new TimeMachine()
+                .positionedInTileCoordinates(2, 13);
 
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
@@ -147,6 +151,8 @@ public class Game implements Runnable {
 
         // To check body
         player.Update(gameMap);
+
+        timeMachine.Update(gameMap);
     }
 
     /**
@@ -174,6 +180,7 @@ public class Game implements Runnable {
         // Draw the map
         if(gameMap != null) {
             gameMap.draw(g);
+            timeMachine.Draw(g);
             player.Draw(g);
         }
 

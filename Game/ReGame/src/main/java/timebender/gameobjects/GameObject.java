@@ -3,7 +3,9 @@ package timebender.gameobjects;
 
 import timebender.assets.animations.collections.AnimationCollection;
 import timebender.map.Map;
+import timebender.map.tiles.Tile;
 import timebender.physics.Body;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ public abstract class GameObject {
         myHitBoxCollection.add(body.getHitBox());
         return myHitBoxCollection;
     }
+
     public void resetToInitialState(){
         // do nothing for most of the objects
     }

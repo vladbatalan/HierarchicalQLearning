@@ -1,11 +1,13 @@
-package timebender.gameobjects;
+package timebender.gameobjects.mobs;
 
 
 import timebender.assets.animations.collections.PlayerAnimationCollection;
+import timebender.gameobjects.ObjectID;
+import timebender.gameobjects.stills.TimeMachine;
 import timebender.map.Map;
+import timebender.map.tiles.Tile;
 import timebender.physics.Body;
-import timebender.physics.PointVector;
-import timebender.physics.enums.Actions;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 
@@ -16,11 +18,23 @@ public class Player extends ControllableObject {
     public static int BODY_HEIGHT = 40;
     public static final float PLAYER_MASS = 47f;
 
+    public Player(){
+        super(new Body(new PointVector(), BODY_WIDTH, BODY_HEIGHT, PLAYER_MASS));
+        this.id = ObjectID.Player;
+        this.animation = new PlayerAnimationCollection();
+    }
 
     public Player(PointVector position) {
         super(new Body(position, BODY_WIDTH, BODY_HEIGHT, PLAYER_MASS));
         this.id = ObjectID.Player;
         this.animation = new PlayerAnimationCollection();
+    }
+
+    public Player positionedInTileCoordinates(int width, int height){
+        PointVector position = new PointVector(
+                width * Tile.TILE_WIDTH + body.getBodyWidth()/2, height * Tile.TILE_HEIGHT - BODY_HEIGHT);
+        this.body.setPosition(position);
+        return this;
     }
 
     public void StandAnimation(Graphics g){

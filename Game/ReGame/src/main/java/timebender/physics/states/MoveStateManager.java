@@ -1,9 +1,9 @@
 package timebender.physics.states;
 
-import timebender.Logger;
 import timebender.physics.Body;
-import timebender.physics.PointVector;
-import timebender.physics.enums.Actions;
+import timebender.physics.utils.PointVector;
+import timebender.physics.states.movecommands.IMoveCommand;
+import timebender.physics.states.movestates.IMoveState;
 import timebender.physics.states.movestates.NoJumpState;
 import timebender.physics.states.movestates.StandState;
 

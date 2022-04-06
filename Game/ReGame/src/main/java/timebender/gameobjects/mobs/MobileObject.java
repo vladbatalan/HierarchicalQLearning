@@ -1,5 +1,6 @@
-package timebender.gameobjects;
+package timebender.gameobjects.mobs;
 
+import timebender.gameobjects.GameObject;
 import timebender.physics.Body;
 
 import java.awt.*;

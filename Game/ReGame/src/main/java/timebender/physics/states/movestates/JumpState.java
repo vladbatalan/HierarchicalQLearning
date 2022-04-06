@@ -2,12 +2,11 @@ package timebender.physics.states.movestates;
 
 import timebender.physics.Body;
 import timebender.physics.JumpComponent;
-import timebender.physics.PointVector;
+import timebender.physics.utils.PointVector;
 import timebender.physics.enums.CollisionTypes;
-import timebender.physics.states.IMoveCommand;
-import timebender.physics.states.IMoveState;
+import timebender.physics.states.movecommands.IMoveCommand;
 
-import static timebender.physics.states.MoveCommandType.JUMP_RELEASED;
+import static timebender.physics.states.movecommands.MoveCommandType.JUMP_RELEASED;
 
 public class JumpState implements IMoveState {
     private Body bodyContext;

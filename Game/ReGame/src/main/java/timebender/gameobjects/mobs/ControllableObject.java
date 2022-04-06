@@ -1,4 +1,4 @@
-package timebender.gameobjects;
+package timebender.gameobjects.mobs;
 
 import timebender.physics.Body;
 

@@ -1,7 +1,8 @@
-package timebender.physics.states;
+package timebender.physics.states.movestates;
 
 import timebender.physics.Body;
-import timebender.physics.PointVector;
+import timebender.physics.utils.PointVector;
+import timebender.physics.states.movecommands.IMoveCommand;
 
 /**
  * Interface that encapsulate a moving state of a body.

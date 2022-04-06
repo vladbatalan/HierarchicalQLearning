@@ -1,7 +1,5 @@
 package timebender.physics.utils;
 
-import timebender.physics.PointVector;
-
 import java.awt.*;
 
 public class CollisionUtils {

@@ -1,6 +1,7 @@
 package timebender.physics;
 
 import timebender.physics.utils.PhysicsConstants;
+import timebender.physics.utils.PointVector;
 
 import static timebender.physics.utils.PhysicsConstants.GRAVITY_ACCELERATION;
 import static timebender.physics.utils.PhysicsConstants.JUMP_CONSTANT;

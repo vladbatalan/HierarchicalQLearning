@@ -1,4 +1,4 @@
-package timebender.physics.states;
+package timebender.physics.states.movecommands;
 
 public enum MoveCommandType {
     RIGHT_PRESSED,

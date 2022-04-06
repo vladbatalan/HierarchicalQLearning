@@ -1,17 +1,11 @@
 package timebender.input;
 
 import timebender.Game;
-import timebender.Logger;
 import timebender.gameobjects.controllers.KeyboardController;
-import timebender.physics.Body;
-import timebender.physics.states.MoveCommandType;
-import timebender.physics.states.movecommands.MoveCommand;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-
-import static timebender.physics.states.MoveCommandType.*;
 
 public class KeyInput extends KeyAdapter {
     private Game game;

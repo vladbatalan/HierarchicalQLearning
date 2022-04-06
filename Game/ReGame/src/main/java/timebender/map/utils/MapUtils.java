@@ -1,7 +1,7 @@
 package timebender.map.utils;
 
 import timebender.map.tiles.Tile;
-import timebender.physics.PointVector;
+import timebender.physics.utils.PointVector;
 
 import static timebender.map.tiles.Tile.TILE_HEIGHT;
 import static timebender.map.tiles.Tile.TILE_WIDTH;

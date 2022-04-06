@@ -1,7 +1,7 @@
 package timebender.gameobjects.controllers;
 
 import timebender.physics.Body;
-import timebender.physics.states.MoveCommandType;
+import timebender.physics.states.movecommands.MoveCommandType;
 import timebender.physics.states.movecommands.MoveCommand;
 
 import java.awt.event.KeyEvent;

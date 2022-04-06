@@ -1,4 +1,4 @@
-package timebender.physics;
+package timebender.physics.utils;
 
 /**
  * Class responsible for representing a 2D vector.
