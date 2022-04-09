@@ -1,14 +1,13 @@
 package timebender;
 
 import timebender.assets.Assets;
+import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
 import timebender.gameobjects.stills.TimeMachine;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.map.Map;
-import timebender.map.tiles.Tile;
-import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -41,6 +40,7 @@ public class Game implements Runnable {
     public static Integer GAME_WINDOW_HEIGHT = 600;
 
     public float CURRENT_FRAME_TIME = 0;
+    public int currentFrame = 0;
 
     /**
      * The map of the game
@@ -59,6 +59,8 @@ public class Game implements Runnable {
      */
     public Player player;
     public TimeMachine timeMachine;
+    public KeyboardController keyboardController;
+    public ControllerBuilder controllerBuilder;
     private void initGame() {
         // Only if the game runs on graphics mode
         gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
@@ -69,9 +71,12 @@ public class Game implements Runnable {
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
-        player = new Player()
-                .positionedInTileCoordinates(2, 13);
-        keyInput.addKeyboardController(new KeyboardController(player.getBody()));
+
+        player = new Player().positionedInTileCoordinates(2, 13);
+        keyboardController = new KeyboardController(player.getBody());
+        keyInput.addKeyboardController(keyboardController);
+        controllerBuilder = new ControllerBuilder(this);
+        keyboardController.attachObserver(controllerBuilder);
 
         timeMachine = new TimeMachine()
                 .positionedInTileCoordinates(2, 13);
@@ -109,6 +114,7 @@ public class Game implements Runnable {
             CURRENT_FRAME_TIME = (float) ((curentTime - oldTime) / timeFrame);
 
             if ((curentTime - oldTime) > timeFrame) {
+                currentFrame++;
                 update();
                 draw();
                 oldTime = curentTime;
@@ -163,7 +169,7 @@ public class Game implements Runnable {
 
         if (bufferStrategy == null) {
             try {
-                gameWindow.getCanvas().createBufferStrategy(3);
+                gameWindow.getCanvas().createBufferStrategy(2);
                 return;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -188,5 +194,8 @@ public class Game implements Runnable {
         g.dispose();
     }
 
+    public int getCurrentFrame() {
+        return currentFrame;
+    }
 }
 

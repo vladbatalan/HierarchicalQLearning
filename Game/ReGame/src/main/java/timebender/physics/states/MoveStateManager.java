@@ -66,4 +66,8 @@ public class MoveStateManager {
 
         return stateFlags;
     }
+
+    public String getStateString(){
+        return moveState.toString() + jumpState.toString();
+    }
 }

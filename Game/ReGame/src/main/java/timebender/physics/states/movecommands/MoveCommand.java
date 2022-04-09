@@ -1,7 +1,7 @@
 package timebender.physics.states.movecommands;
 
 public class MoveCommand implements IMoveCommand {
-    private MoveCommandType commandType;
+    private final MoveCommandType commandType;
     private int frameTimestamp;
 
     public MoveCommand(MoveCommandType commandType){
@@ -16,6 +16,16 @@ public class MoveCommand implements IMoveCommand {
 
     public MoveCommandType getCommandType() {
         return commandType;
+    }
+
+    @Override
+    public String toString(){
+        return commandType.toString() + " (" + frameTimestamp + ")";
+    }
+
+    @Override
+    public void setTimestamp(int timestamp) {
+        this.frameTimestamp = timestamp;
     }
 
     public int getFrameTimestamp() {
