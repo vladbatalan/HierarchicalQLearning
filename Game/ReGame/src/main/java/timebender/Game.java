@@ -2,8 +2,10 @@ package timebender;
 
 import timebender.assets.Assets;
 import timebender.gameobjects.controllers.ControllerBuilder;
+import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
+import timebender.gameobjects.stills.Objective;
 import timebender.gameobjects.stills.TimeMachine;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
@@ -57,29 +59,39 @@ public class Game implements Runnable {
     /**
      * Method responsable for configuring the initialisation parameters of the Game
      */
-    public Player player;
-    public TimeMachine timeMachine;
     public KeyboardController keyboardController;
     public ControllerBuilder controllerBuilder;
+
     private void initGame() {
         // Only if the game runs on graphics mode
         gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
         gameWindow.buildGameWindow();
 
+        // Add this game to GameObjectHandler
+        GameObjectHandler.SetGame(this);
+        GameObjectHandler.ClearGameObjects();
 
         // Create input listeners
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
-
-        player = new Player().positionedInTileCoordinates(2, 13);
+        // Create player
+        Player player = new Player().positionedInTileCoordinates(2, 13);
+        // Attach keyboard controller to player
         keyboardController = new KeyboardController(player.getBody());
+        // Add keyboard to input
         keyInput.addKeyboardController(keyboardController);
-        controllerBuilder = new ControllerBuilder(this);
+
+        // Create a controllerBuilder for OldPlayerInstances
+        controllerBuilder = new ControllerBuilder();
         keyboardController.attachObserver(controllerBuilder);
 
-        timeMachine = new TimeMachine()
+        // Create Time machine
+        TimeMachine timeMachine = new TimeMachine()
                 .positionedInTileCoordinates(2, 13);
+
+        Objective gameObjective = new Objective(false)
+                .positionedInTileCoordinates(7, 13);
 
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
@@ -89,6 +101,10 @@ public class Game implements Runnable {
         Assets.init();
 
         gameMap = BuildFromXmlFile("/maps/map-text.xml");
+
+        GameObjectHandler.SetPlayer(player);
+        GameObjectHandler.AddGameObject(timeMachine);
+        GameObjectHandler.AddGameObject(gameObjective);
     }
 
     /**
@@ -155,10 +171,7 @@ public class Game implements Runnable {
         // Only if Graphics mode is enabled
         gameWindow.getJFrame().requestFocus();
 
-        // To check body
-        player.Update(gameMap);
-
-        timeMachine.Update(gameMap);
+        GameObjectHandler.Update(gameMap);
     }
 
     /**
@@ -186,8 +199,7 @@ public class Game implements Runnable {
         // Draw the map
         if(gameMap != null) {
             gameMap.draw(g);
-            timeMachine.Draw(g);
-            player.Draw(g);
+            GameObjectHandler.Draw(g);
         }
 
         bufferStrategy.show();

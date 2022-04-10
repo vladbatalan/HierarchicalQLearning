@@ -1,17 +1,14 @@
 package timebender.gameobjects.controllers;
 
 import timebender.Game;
+import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.physics.states.movecommands.MoveCommand;
 
 import java.util.ArrayList;
 
 public class ControllerBuilder implements ICommandObserver{
     private ArrayList<MoveCommand> commandList = new ArrayList<>();
-    private Game game;
 
-    public ControllerBuilder(Game game){
-        this.game = game;
-    }
 
     public Controller buildController(){
 
@@ -32,7 +29,7 @@ public class ControllerBuilder implements ICommandObserver{
         if(command.getFrameTimestamp() == -1)
         {
             // Assign it a timestamp
-            command.setTimestamp(game.getCurrentFrame());
+            command.setTimestamp(GameObjectHandler.GetFrameNumber());
         }
 
         // Add it to the list

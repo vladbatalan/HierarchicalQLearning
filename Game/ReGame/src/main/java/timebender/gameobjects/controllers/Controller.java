@@ -18,7 +18,7 @@ public class Controller {
         body = null;
     }
 
-    public Controller(Game game, Body body){
+    public Controller(Body body){
         commandIndex = 0;
         this.body = body;
     }
