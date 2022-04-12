@@ -82,7 +82,16 @@ public class GameCamera {
         this.position.setY(Math.min(position.getY(), maxHeight));
     }
 
+    public Rectangle getCameraSquare() {
+        return new Rectangle(
+                (int) position.getX(),
+                (int) position.getY(),
+                Game.GAME_WINDOW_WIDTH,
+                Game.GAME_WINDOW_HEIGHT);
+    }
+
     public PointVector getPosition() {
         return position;
     }
+
 }

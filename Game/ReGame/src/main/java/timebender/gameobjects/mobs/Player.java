@@ -4,6 +4,7 @@ package timebender.gameobjects.mobs;
 import timebender.assets.animations.collections.PlayerAnimationCollection;
 import timebender.gameobjects.ObjectID;
 import timebender.gameobjects.stills.TimeMachine;
+import timebender.gameobjects.utils.ObjectPlacementUtil;
 import timebender.map.Map;
 import timebender.map.tiles.Tile;
 import timebender.physics.Body;
@@ -11,6 +12,7 @@ import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 
+import static timebender.gameobjects.utils.ObjectPlacementUtil.*;
 import static timebender.physics.enums.Actions.*;
 
 public class Player extends ControllableObject {
@@ -31,9 +33,7 @@ public class Player extends ControllableObject {
     }
 
     public Player positionedInTileCoordinates(int width, int height){
-        PointVector position = new PointVector(
-                width * Tile.TILE_WIDTH + body.getBodyWidth()/2, height * Tile.TILE_HEIGHT - BODY_HEIGHT);
-        this.body.setPosition(position);
+        SetPositionByTileCoordinates(width, height, body);
         return this;
     }
 

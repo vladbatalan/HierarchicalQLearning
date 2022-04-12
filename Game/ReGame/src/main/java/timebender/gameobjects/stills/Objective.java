@@ -9,6 +9,8 @@ import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 
+import static timebender.gameobjects.utils.ObjectPlacementUtil.SetPositionByTileCoordinates;
+
 public class Objective extends StillObject implements ISwitchable {
     private static final int BODY_WIDTH = 40;
     private static final int BODY_HEIGHT = 80;
@@ -31,8 +33,7 @@ public class Objective extends StillObject implements ISwitchable {
     }
 
     public Objective positionedInTileCoordinates(int width, int height) {
-        PointVector position = new PointVector(width * Tile.TILE_WIDTH, height * Tile.TILE_HEIGHT - BODY_HEIGHT);
-        this.body.setPosition(position);
+        SetPositionByTileCoordinates(width, height, body);
         return this;
     }
 

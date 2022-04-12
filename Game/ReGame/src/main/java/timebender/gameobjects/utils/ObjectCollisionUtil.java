@@ -1,4 +1,4 @@
-package timebender.gameobjects.handlers;
+package timebender.gameobjects.utils;
 
 
 // every GameObject has a way to comunicate with the map and decide if there is any kind of collision
@@ -88,7 +88,7 @@ public class ObjectCollisionUtil {
     }
 
     // checks the existing of a collision
-    private static boolean isThereCollisionBetween(GameObject obj1, GameObject obj2) {
+    public static boolean isThereCollisionBetween(GameObject obj1, GameObject obj2) {
         ArrayList<Rectangle> obj1HitBoxes = obj1.getHitBoxCollection();
         ArrayList<Rectangle> obj2HitBoxes = obj2.getHitBoxCollection();
 

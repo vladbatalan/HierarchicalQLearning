@@ -3,6 +3,7 @@ package timebender.map;
 
 import timebender.Game;
 import timebender.assets.ImageLoader;
+import timebender.gameobjects.camera.GameCamera;
 import timebender.map.tiles.Tile;
 import timebender.map.tiles.types.TileFactory;
 import timebender.map.utils.MapUtils;
@@ -36,7 +37,7 @@ public class Map {
     private int mapTilesHeight;
 
     private BufferedImage backgroundImage;
-    // private GameCamera camera;
+    private GameCamera camera;
 
     public Map(int mapTilesWidth, int mapTilesHeight) {
         this.mapTilesWidth = mapTilesWidth;
@@ -125,39 +126,22 @@ public class Map {
             int backgroundX = 0;
             int backgroundY = 0;
 
-//            if (camera != null) {
-//
-//                backgroundX = (int) camera.getCameraCoordinates().getX();
-//                backgroundY = (int) camera.getCameraCoordinates().getY();
-//            }
+            if (camera != null) {
+
+                backgroundX = (int) camera.getPosition().getX();
+                backgroundY = (int) camera.getPosition().getY();
+            }
 
             g.drawImage(backgroundImage, backgroundX, backgroundY,
                     Game.GAME_WINDOW_WIDTH, Game.GAME_WINDOW_HEIGHT, null);
         }
 
-//        // Assume camera is not null?!
-//        Rectangle cameraSquare = new Rectangle(
-//                (int) camera.getCameraCoordinates().getX(),
-//                (int) camera.getCameraCoordinates().getY(),
-//                Game.GAME_WINDOW_WIDTH,
-//                Game.GAME_WINDOW_HEIGHT
-//        );
-
-        /*int rowLowBound = max((int) cameraSquare.getY() / TILE_HEIGHT - 1, 0);
-        int rowHighBound = min((int) (cameraSquare.getY() + cameraSquare.height) / TILE_HEIGHT, mapHeight);
-        int columnLowBound = max((int) cameraSquare.getX() / TILE_WIDTH - 1, 0);
-        int columnHighBound = min((int) (cameraSquare.getX() + cameraSquare.width) / TILE_WIDTH, mapWidth);
-
-        for (int row = rowLowBound; row <= rowHighBound; row++) {
-            for (int column = columnLowBound; column <= columnHighBound; column++) {
-                tileMatrix.get(row).get(column).Draw(g, column * TILE_WIDTH, row * TILE_HEIGHT);
-            }
-        }*/
-
-        // Not optimized enough
         // Draw only visible tiles
-
         Rectangle cameraSquare = new Rectangle(0, 0, Game.GAME_WINDOW_WIDTH, Game.GAME_WINDOW_HEIGHT);
+
+        if(camera != null){
+            cameraSquare = camera.getCameraSquare();
+        }
 
         for (int row = 0; row < mapTilesHeight; row++) {
             for (int column = 0; column < mapTilesWidth; column++) {
@@ -295,9 +279,9 @@ public class Map {
         return bounds;
     }
 
-//    public void setCamera(GameCamera camera) {
-//        this.camera = camera;
-//    }
+    public void setCamera(GameCamera camera) {
+        this.camera = camera;
+    }
 
     public void setBackgroundImage(BufferedImage backgroundImage) {
         this.backgroundImage = backgroundImage;

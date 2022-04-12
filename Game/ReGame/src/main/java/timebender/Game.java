@@ -6,6 +6,7 @@ import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
+import timebender.gameobjects.stills.Lever;
 import timebender.gameobjects.stills.Objective;
 import timebender.gameobjects.stills.TimeMachine;
 import timebender.input.KeyInput;
@@ -96,6 +97,9 @@ public class Game implements Runnable {
         Objective gameObjective = new Objective(false)
                 .positionedInTileCoordinates(7, 13);
 
+        Lever objectiveLever = new Lever().positionedInTileCoordinates(3, 21);
+        objectiveLever.addAffectedObject(gameObjective);
+
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
         gameWindow.getCanvas().addMouseMotionListener(mouseInput);
@@ -108,10 +112,12 @@ public class Game implements Runnable {
         camera = new GameCamera(gameMap.getMaxBounds());
         camera.setFollowedObject(player);
         camera.start();
+        gameMap.setCamera(camera);
 
-        GameObjectHandler.SetPlayer(player);
+        GameObjectHandler.AddGameObject(player);
         GameObjectHandler.AddGameObject(timeMachine);
         GameObjectHandler.AddGameObject(gameObjective);
+        GameObjectHandler.AddGameObject(objectiveLever);
     }
 
     /**
@@ -178,6 +184,7 @@ public class Game implements Runnable {
         // Only if Graphics mode is enabled
         gameWindow.getJFrame().requestFocus();
 
+        gameMap.update();
         GameObjectHandler.Update(gameMap);
     }
 

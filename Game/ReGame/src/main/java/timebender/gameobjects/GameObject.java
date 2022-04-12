@@ -2,6 +2,7 @@ package timebender.gameobjects;
 
 
 import timebender.assets.animations.collections.AnimationCollection;
+import timebender.gameobjects.mobs.Player;
 import timebender.map.Map;
 import timebender.map.tiles.Tile;
 import timebender.physics.Body;

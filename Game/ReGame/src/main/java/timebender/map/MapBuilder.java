@@ -63,6 +63,7 @@ public class MapBuilder {
             result.setBackground(xmlComponent.getBackgroundImageUrl());
         }
 
+
         return result;
     }
 

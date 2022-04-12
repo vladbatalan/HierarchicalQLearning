@@ -9,48 +9,55 @@ import timebender.gameobjects.stills.StillObject;
 import timebender.map.Map;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameObjectHandler {
 
     // The list needs to be a synchronized one
-    private static final List<StillObject> stillObjects = Collections.synchronizedList(new ArrayList<>());
-    private static final List<MobileObject> mobileObjects = Collections.synchronizedList(new ArrayList<>());
+
+    private static final ConcurrentLinkedQueue<StillObject> stillObjects = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<MobileObject> mobileObjects = new ConcurrentLinkedQueue<>();
     private static Player player = null;
 
     private static Game game = null;
 
-    public static void AddGameObject(GameObject gameObject){
+    public static void AddGameObject(GameObject gameObject) {
 
-        if(gameObject.isMobile())
+        if (gameObject.isMobile()) {
             mobileObjects.add((MobileObject) gameObject);
-        else
+            if (gameObject.getId() == ObjectID.Player)
+                player = (Player) gameObject;
+        } else {
             stillObjects.add((StillObject) gameObject);
+        }
+
     }
 
-    public static void RemoveGameObject(GameObject gameObject){
-        if(gameObject.isMobile())
+    public static void RemoveGameObject(GameObject gameObject) {
+        if (gameObject.isMobile()) {
             mobileObjects.remove((MobileObject) gameObject);
-        else
+            if (gameObject.getId() == ObjectID.Player)
+                player = null;
+        } else
             stillObjects.remove((StillObject) gameObject);
     }
 
-    public static void ClearGameObjects(){
+    public static void ClearGameObjects() {
         mobileObjects.clear();
         stillObjects.clear();
         player = null;
     }
 
     public static void Update(Map currentMap) {
-        for(GameObject object : stillObjects){
+        for (GameObject object : stillObjects) {
             object.Update(currentMap);
         }
-        for(GameObject object: mobileObjects){
-            object.Update(currentMap);
+        for (GameObject object : mobileObjects) {
+            if (object != player)
+                object.Update(currentMap);
         }
-        if(player != null){
+        if (player != null) {
             player.Update(currentMap);
         }
 
@@ -100,44 +107,18 @@ public class GameObjectHandler {
     }
 
     public static void Draw(Graphics g) {
-        for(GameObject object : stillObjects){
+        for (GameObject object : stillObjects) {
             object.Draw(g);
         }
-        for(GameObject object: mobileObjects){
-            object.Draw(g);
+        for (GameObject object : mobileObjects) {
+            if (object.getId() != ObjectID.Player)
+                object.Draw(g);
         }
-        if(player != null){
+        if (player != null) {
             player.Draw(g);
         }
     }
-//
-//    public void setPlayer(Player player) {
-//        if (getPlayer() == null)
-//            mobileObjects.add(player);
-//        else
-//            for (int index = 0; index < mobileObjects.size(); index++)
-//                if (mobileObjects.get(index).id == ObjectID.Player)
-//                    mobileObjects.set(index, player);
-//    }
-//
-//    public Player getPlayer() {
-//        for (int index = 0; index < mobileObjects.size(); index++)
-//            if (mobileObjects.get(index).id == ObjectID.Player)
-//                return (Player) mobileObjects.get(index);
-//        return null;
-//    }
 
-//    public void addStillObject(StillObject structure) {
-//        stillObjects.add(structure);
-//    }
-//
-//    public void addMobileObject(MobileObject mobile) {
-//        mobileObjects.add(mobile);
-//    }
-
-//    public void addOldInstance(OldPlayerInstance oldPlayer) {
-//        oldInstances.add(oldPlayer);
-//    }
 
 //    public void renewOldInstances() {
 //        ArrayList<MobileObject> toBeRemoved = new ArrayList<>();
@@ -166,21 +147,26 @@ public class GameObjectHandler {
 //        }
 //    }
 
-//    public void clearOldInstances() {
-//        oldInstances.clear();
-//    }
-
-    public static void SetGame(Game game){
+    public static void SetGame(Game game) {
         GameObjectHandler.game = game;
     }
 
-    public static void SetPlayer(Player player){
+    public static void SetPlayer(Player player) {
         GameObjectHandler.player = player;
+        mobileObjects.add(player);
     }
 
-    public static int GetFrameNumber(){
-        if(game != null)
+    public static int GetFrameNumber() {
+        if (game != null)
             return game.getCurrentFrame();
         return -1;
+    }
+
+    public static ConcurrentLinkedQueue<MobileObject> GetMobileObjects() {
+        return GameObjectHandler.mobileObjects;
+    }
+
+    public static ConcurrentLinkedQueue<StillObject> GetStillObjects() {
+        return GameObjectHandler.stillObjects;
     }
 }

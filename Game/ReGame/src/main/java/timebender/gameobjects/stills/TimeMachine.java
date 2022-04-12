@@ -12,6 +12,7 @@ import java.awt.*;
 
 import static timebender.gameobjects.mobs.Player.BODY_HEIGHT;
 import static timebender.gameobjects.mobs.Player.BODY_WIDTH;
+import static timebender.gameobjects.utils.ObjectPlacementUtil.SetPositionByTileCoordinates;
 
 public class TimeMachine extends StillObject {
     public static final int BODY_WIDTH = 50;
@@ -39,8 +40,7 @@ public class TimeMachine extends StillObject {
     }
 
     public TimeMachine positionedInTileCoordinates(int width, int height) {
-        PointVector position = new PointVector(width * Tile.TILE_WIDTH, height * Tile.TILE_HEIGHT - BODY_HEIGHT);
-        this.body.setPosition(position);
+        SetPositionByTileCoordinates(width, height, body);
         return this;
     }
 
