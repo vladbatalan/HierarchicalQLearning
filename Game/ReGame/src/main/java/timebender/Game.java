@@ -1,6 +1,7 @@
 package timebender;
 
 import timebender.assets.Assets;
+import timebender.gameobjects.camera.GameCamera;
 import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
@@ -52,6 +53,8 @@ public class Game implements Runnable {
     private MouseInput mouseInput;
     private KeyInput keyInput;
 
+    private GameCamera camera;
+
     public Game() {
         runState = false;
     }
@@ -101,6 +104,10 @@ public class Game implements Runnable {
         Assets.init();
 
         gameMap = BuildFromXmlFile("/maps/map-text.xml");
+
+        camera = new GameCamera(gameMap.getMaxBounds());
+        camera.setFollowedObject(player);
+        camera.start();
 
         GameObjectHandler.SetPlayer(player);
         GameObjectHandler.AddGameObject(timeMachine);
@@ -198,6 +205,7 @@ public class Game implements Runnable {
 
         // Draw the map
         if(gameMap != null) {
+            camera.update(g);
             gameMap.draw(g);
             GameObjectHandler.Draw(g);
         }
