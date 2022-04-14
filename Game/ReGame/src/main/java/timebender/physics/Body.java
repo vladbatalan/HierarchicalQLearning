@@ -21,6 +21,10 @@ public class Body {
     private final float mass;
     private float movementSpeed = 4f;
 
+    // Used to keep data for collision with bodies
+    private PointVector resultantForce;
+    private PointVector oldPosition;
+
     // All collision sides
     private boolean[] collisionState = new boolean[5];
 
@@ -49,8 +53,11 @@ public class Body {
      */
     public void update(Map currentMap) {
 
+        // Save the old position
+        oldPosition = new PointVector(position);
+
         // Create all the forces that contribute to nextPosition
-        PointVector resultantForce = new PointVector();
+        resultantForce = new PointVector();
         PointVector velocity = moveStateManager.getVelocity();
         PointVector jumpForce = moveStateManager.getJumpForce();
 
@@ -84,13 +91,8 @@ public class Body {
         //apply corrections to resultantForce
         resultantForce = nextPosition.sub(position);
 
-        // Ajust the resultant force based on collisionStates
-        adjustResultingForceOnCollision(resultantForce);
-
-        PointVector oldPosition = new PointVector(position);
-
-        // Update the position
-        position = position.add(resultantForce);
+        // Adjust the resultant force based on collisionStates
+        adjustResultingForceOnCollision();
 
     }
 
@@ -104,7 +106,7 @@ public class Body {
         g.fillRect((int) position.getX(), (int) position.getY(), bodyWidth, bodyHeight);
     }
 
-    private void adjustResultingForceOnCollision(PointVector resultantForce) {
+    public void adjustResultingForceOnCollision() {
 
         // This function takes into consideration the current resultant force
         // and the current Collision state which is modified by interaction with the map, or base on
@@ -134,6 +136,8 @@ public class Body {
                 resultantForce.setX(0);
             }
         }
+
+        position = oldPosition.add(resultantForce);
     }
 
     /**

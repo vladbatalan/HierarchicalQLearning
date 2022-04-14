@@ -11,7 +11,7 @@ public abstract class StillObject extends GameObject {
     public StillObject(Body body) {
         super(body);
         this.isMobile = false;
-        this.isCollisional = true;
+        this.isCollisional = false;
     }
 
     @Override

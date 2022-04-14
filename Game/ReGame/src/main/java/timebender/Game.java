@@ -9,12 +9,16 @@ import timebender.gameobjects.controllers.KeyboardController;
 import timebender.gameobjects.stills.Lever;
 import timebender.gameobjects.stills.Objective;
 import timebender.gameobjects.stills.TimeMachine;
+import timebender.gameobjects.stills.TimedGate;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.map.Map;
+import timebender.map.tiles.Tile;
+import timebender.physics.utils.PointVector;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
+import java.sql.Time;
 
 import static timebender.map.MapBuilder.BuildFromXmlFile;
 
@@ -79,6 +83,15 @@ public class Game implements Runnable {
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
+
+        // Add listeners
+        gameWindow.getCanvas().addMouseListener(mouseInput);
+        gameWindow.getCanvas().addMouseMotionListener(mouseInput);
+        gameWindow.getJFrame().addKeyListener(keyInput);
+
+        Assets.init();
+
+
         // Create player
         Player player = new Player().positionedInTileCoordinates(2, 13);
         // Attach keyboard controller to player
@@ -97,15 +110,14 @@ public class Game implements Runnable {
         Objective gameObjective = new Objective(false)
                 .positionedInTileCoordinates(7, 13);
 
+        TimedGate timedGate = new TimedGate(new PointVector(Tile.TILE_WIDTH * 17 + 12, Tile.TILE_HEIGHT * 13 - 4),
+                3 * Tile.TILE_HEIGHT - 4, true);
+
+        Lever timedGateLever = new Lever().positionedInTileCoordinates(14, 13);
+        timedGateLever.addAffectedObject(timedGate);
+
         Lever objectiveLever = new Lever().positionedInTileCoordinates(3, 21);
         objectiveLever.addAffectedObject(gameObjective);
-
-        // Add listeners
-        gameWindow.getCanvas().addMouseListener(mouseInput);
-        gameWindow.getCanvas().addMouseMotionListener(mouseInput);
-        gameWindow.getJFrame().addKeyListener(keyInput);
-
-        Assets.init();
 
         gameMap = BuildFromXmlFile("/maps/map-text.xml");
 
@@ -118,6 +130,8 @@ public class Game implements Runnable {
         GameObjectHandler.AddGameObject(timeMachine);
         GameObjectHandler.AddGameObject(gameObjective);
         GameObjectHandler.AddGameObject(objectiveLever);
+        GameObjectHandler.AddGameObject(timedGateLever);
+        GameObjectHandler.AddGameObject(timedGate);
     }
 
     /**

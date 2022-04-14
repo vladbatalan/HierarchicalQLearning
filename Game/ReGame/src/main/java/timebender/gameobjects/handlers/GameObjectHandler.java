@@ -6,6 +6,7 @@ import timebender.gameobjects.ObjectID;
 import timebender.gameobjects.mobs.MobileObject;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.stills.StillObject;
+import timebender.gameobjects.utils.ObjectCollisionUtil;
 import timebender.map.Map;
 
 import java.awt.*;
@@ -50,15 +51,30 @@ public class GameObjectHandler {
     }
 
     public static void Update(Map currentMap) {
+
+        // Update all still objects
         for (GameObject object : stillObjects) {
             object.Update(currentMap);
         }
+
+        // Update mobile objects (Except player one)
         for (GameObject object : mobileObjects) {
             if (object != player)
                 object.Update(currentMap);
         }
+
+        // Update the player
         if (player != null) {
             player.Update(currentMap);
+        }
+
+        // Manage collisions
+        for (MobileObject mob : mobileObjects) {
+            for (StillObject structure : stillObjects) {
+
+                // we let the collision handler to manage the interaction
+                ObjectCollisionUtil.manageObjectsCollision(mob, structure);
+            }
         }
 
         // Interaction between Player and specific stationary objects
