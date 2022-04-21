@@ -1,6 +1,5 @@
 package timebender.gameobjects.controllers;
 
-import timebender.Game;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.physics.states.movecommands.MoveCommand;
 
@@ -10,12 +9,12 @@ public class ControllerBuilder implements ICommandObserver{
     private ArrayList<MoveCommand> commandList = new ArrayList<>();
 
 
-    public Controller buildController(){
+    public FixedController buildController(){
 
         // Create a new controller based on the gathered commands
-        Controller build = new Controller();
+        FixedController build = new FixedController();
 
-        ArrayList<MoveCommand> controllerCommands = (ArrayList<MoveCommand>) commandList.clone();
+        ArrayList<MoveCommand> controllerCommands = new ArrayList<MoveCommand>(commandList);
 
         build.setCommandList(controllerCommands);
 

@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameObjectHandler {
 
-    // The list needs to be a synchronized one
-
     private static final ConcurrentLinkedQueue<StillObject> stillObjects = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<MobileObject> mobileObjects = new ConcurrentLinkedQueue<>();
     private static Player player = null;
@@ -184,5 +182,9 @@ public class GameObjectHandler {
 
     public static ConcurrentLinkedQueue<StillObject> GetStillObjects() {
         return GameObjectHandler.stillObjects;
+    }
+
+    public static Player GetPlayer() {
+        return player;
     }
 }

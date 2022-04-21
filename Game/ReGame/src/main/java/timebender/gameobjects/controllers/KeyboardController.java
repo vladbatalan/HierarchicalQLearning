@@ -1,5 +1,6 @@
 package timebender.gameobjects.controllers;
 
+import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.physics.Body;
 import timebender.physics.states.movecommands.MoveCommandType;
 import timebender.physics.states.movecommands.MoveCommand;
@@ -55,7 +56,8 @@ public class KeyboardController implements ICommandObservable {
         }
         
         if(received != null){
-            // TODO: Set the current frame of the command
+            // Set the current frame of the command
+            received.setTimestamp(GameObjectHandler.GetFrameNumber());
 
             // Get the old body state
             String oldState = body.getMoveStateManager().getStateString();

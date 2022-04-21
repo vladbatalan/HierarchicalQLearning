@@ -1,24 +1,23 @@
 package timebender.gameobjects.controllers;
 
-import timebender.Game;
 import timebender.physics.Body;
 import timebender.physics.states.movecommands.MoveCommand;
 
 import java.util.ArrayList;
 
-public class Controller {
+public class FixedController {
     private ArrayList<MoveCommand> commandList;
 
     private Body body;
 
     private int commandIndex = 0;
 
-    public Controller(){
+    public FixedController(){
         commandIndex = 0;
         body = null;
     }
 
-    public Controller(Body body){
+    public FixedController(Body body){
         commandIndex = 0;
         this.body = body;
     }
