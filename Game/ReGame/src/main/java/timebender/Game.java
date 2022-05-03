@@ -12,6 +12,8 @@ import timebender.gameobjects.stills.TimeMachine;
 import timebender.gameobjects.stills.TimedGate;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
+import timebender.levels.Level0;
+import timebender.levels.LevelImproved;
 import timebender.map.Map;
 import timebender.map.tiles.Tile;
 import timebender.physics.utils.PointVector;
@@ -53,12 +55,10 @@ public class Game implements Runnable {
     /**
      * The map of the game
      */
-    private Map gameMap;
 
     private MouseInput mouseInput;
     private KeyInput keyInput;
-
-    private GameCamera camera;
+    private LevelImproved level;
 
     public Game() {
         runState = false;
@@ -83,7 +83,6 @@ public class Game implements Runnable {
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
 
-
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
         gameWindow.getCanvas().addMouseMotionListener(mouseInput);
@@ -91,11 +90,10 @@ public class Game implements Runnable {
 
         Assets.init();
 
-
         // Create player
-        Player player = new Player().positionedInTileCoordinates(2, 13);
+        Player player = new Player();
         // Attach keyboard controller to player
-        keyboardController = new KeyboardController(player.getBody());
+        keyboardController = new KeyboardController(player.getBody(), player.id);
         // Add keyboard to input
         keyInput.addKeyboardController(keyboardController);
 
@@ -103,35 +101,13 @@ public class Game implements Runnable {
         controllerBuilder = new ControllerBuilder();
         keyboardController.attachObserver(controllerBuilder);
 
-        // Create Time machine
-        TimeMachine timeMachine = new TimeMachine()
-                .positionedInTileCoordinates(2, 13);
-
-        Objective gameObjective = new Objective(false)
-                .positionedInTileCoordinates(7, 13);
-
-        TimedGate timedGate = new TimedGate(new PointVector(Tile.TILE_WIDTH * 17 + 12, Tile.TILE_HEIGHT * 13 - 4),
-                3 * Tile.TILE_HEIGHT - 4, true);
-
-        Lever timedGateLever = new Lever().positionedInTileCoordinates(14, 13);
-        timedGateLever.addAffectedObject(timedGate);
-
-        Lever objectiveLever = new Lever().positionedInTileCoordinates(3, 21);
-        objectiveLever.addAffectedObject(gameObjective);
-
-        gameMap = BuildFromXmlFile("/maps/map-text.xml");
-
-        camera = new GameCamera(gameMap.getMaxBounds());
-        camera.setFollowedObject(player);
-        camera.start();
-        gameMap.setCamera(camera);
-
+        // Add player to Game Object Handler
         GameObjectHandler.AddGameObject(player);
-        GameObjectHandler.AddGameObject(timeMachine);
-        GameObjectHandler.AddGameObject(gameObjective);
-        GameObjectHandler.AddGameObject(objectiveLever);
-        GameObjectHandler.AddGameObject(timedGateLever);
-        GameObjectHandler.AddGameObject(timedGate);
+
+        // Initialize level
+        level = new Level0();
+        level.initLevelObjects();
+        level.resetComplete();
     }
 
     /**
@@ -198,8 +174,8 @@ public class Game implements Runnable {
         // Only if Graphics mode is enabled
         gameWindow.getJFrame().requestFocus();
 
-        gameMap.update();
-        GameObjectHandler.Update(gameMap);
+        // Update the level
+        level.update();
     }
 
     /**
@@ -224,19 +200,19 @@ public class Game implements Runnable {
         g.setColor(new Color(30, 31, 41));
         g.fillRect(0, 0, gameWindow.getWndWidth(), gameWindow.getWndHeight());
 
-        // Draw the map
-        if(gameMap != null) {
-            camera.update(g);
-            gameMap.draw(g);
-            GameObjectHandler.Draw(g);
-        }
+        // Draw the level
+        level.draw(g);
 
         bufferStrategy.show();
         g.dispose();
     }
 
     public int getCurrentFrame() {
-        return currentFrame;
+        return level.getFrameNumber();
+    }
+
+    public ControllerBuilder getControllerBuilder() {
+        return controllerBuilder;
     }
 }
 

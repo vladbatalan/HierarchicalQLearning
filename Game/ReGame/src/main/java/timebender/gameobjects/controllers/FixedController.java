@@ -1,28 +1,25 @@
 package timebender.gameobjects.controllers;
 
+import timebender.Logger;
 import timebender.physics.Body;
 import timebender.physics.states.movecommands.MoveCommand;
+import timebender.physics.states.movecommands.MoveCommandType;
 
 import java.util.ArrayList;
 
 public class FixedController {
     private ArrayList<MoveCommand> commandList;
 
-    private Body body;
+    private boolean spaceEvent = false;
+    private boolean commandsFinishedEvent = false;
 
     private int commandIndex = 0;
 
     public FixedController(){
         commandIndex = 0;
-        body = null;
     }
 
-    public FixedController(Body body){
-        commandIndex = 0;
-        this.body = body;
-    }
-
-    public void execute(int executionTime){
+    public void execute(int executionTime, Body body){
 
         // Will execute only if a body exists
         if(body == null) {
@@ -30,6 +27,7 @@ public class FixedController {
             return;
         }
 
+        spaceEvent = false;
         int numberOfCommands = commandList.size();
 
         while(commandIndex < numberOfCommands){
@@ -41,6 +39,11 @@ public class FixedController {
 
                 // Feed body with command
                 body.getMoveStateManager().nextState(current);
+
+                // If space event pressed, set space flag
+                if(current.getCommandType() == MoveCommandType.SPACE_RELEASED) {
+                    spaceEvent = true;
+                }
             }
             else if(current.getFrameTimestamp() > executionTime){
                 // No more commands to be executed at this moment of time
@@ -50,10 +53,16 @@ public class FixedController {
             // Increase the current index
             commandIndex ++;
         }
+
+        // Check: if index is greater than the number of commands, but instance still on play
+        // We identify a paradox
+        commandsFinishedEvent = commandIndex >= numberOfCommands;
     }
 
     public void resetController(){
         commandIndex = 0;
+        spaceEvent = false;
+        commandsFinishedEvent = false;
     }
 
     @Override
@@ -69,11 +78,15 @@ public class FixedController {
         return commandList;
     }
 
-    public void setBody(Body body) {
-        this.body = body;
-    }
-
     public void setCommandList(ArrayList<MoveCommand> commandList) {
         this.commandList = commandList;
+    }
+
+    public boolean isSpaceEvent() {
+        return spaceEvent;
+    }
+
+    public boolean isCommandsFinishedEvent(){
+        return commandsFinishedEvent;
     }
 }

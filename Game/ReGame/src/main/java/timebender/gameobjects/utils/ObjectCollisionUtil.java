@@ -66,12 +66,7 @@ public class ObjectCollisionUtil {
                         }
                     }
 
-                    //TODO: Problem here
                     mobile.getBody().adjustResultingForceOnCollision();
-                    //System.out.println(obj1.getId() + " have ajusted it's position based on the interraction with " + obj2.getId());
-                    // ############################# condition if obj2 is deadly to make mobile dead ###################
-
-                    // the mechanism that stops the instance from advancing
                 }
                 // 2) still to still ex: one box is on a balance -> for later improvement
 

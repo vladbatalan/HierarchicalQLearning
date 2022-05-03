@@ -15,6 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static timebender.gameobjects.utils.ObjectCollisionUtil.*;
 import static timebender.gameobjects.utils.ObjectPlacementUtil.SetPositionByTileCoordinates;
 
 public class Lever extends StillObject implements ISwitch {
@@ -62,10 +63,15 @@ public class Lever extends StillObject implements ISwitch {
 
         // Check if any entity interacts with the Lever
         for (MobileObject mobile : mobileObjectList) {
-            if (ObjectCollisionUtil.isThereCollisionBetween(this, mobile)) {
+            if (isThereCollisionBetween(this, mobile)) {
                 isSwitched = true;
                 break;
             }
+        }
+
+        // Check if player interacts with the Lever
+        if (isThereCollisionBetween(this, GameObjectHandler.GetPlayer())) {
+            isSwitched = true;
         }
 
         // Only if the state changed

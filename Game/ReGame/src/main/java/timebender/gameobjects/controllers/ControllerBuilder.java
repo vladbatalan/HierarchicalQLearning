@@ -6,7 +6,7 @@ import timebender.physics.states.movecommands.MoveCommand;
 import java.util.ArrayList;
 
 public class ControllerBuilder implements ICommandObserver{
-    private ArrayList<MoveCommand> commandList = new ArrayList<>();
+    private final ArrayList<MoveCommand> commandList = new ArrayList<>();
 
 
     public FixedController buildController(){

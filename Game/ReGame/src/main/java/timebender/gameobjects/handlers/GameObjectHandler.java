@@ -1,15 +1,21 @@
 package timebender.gameobjects.handlers;
 
 import timebender.Game;
+import timebender.Logger;
 import timebender.gameobjects.GameObject;
 import timebender.gameobjects.ObjectID;
+import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.mobs.MobileObject;
+import timebender.gameobjects.mobs.OldPlayerInstance;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.stills.StillObject;
+import timebender.gameobjects.stills.TimeMachine;
 import timebender.gameobjects.utils.ObjectCollisionUtil;
+import timebender.levels.LevelFlagsSystem;
 import timebender.map.Map;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -17,16 +23,20 @@ public class GameObjectHandler {
 
     private static final ConcurrentLinkedQueue<StillObject> stillObjects = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<MobileObject> mobileObjects = new ConcurrentLinkedQueue<>();
+    private static final ArrayList<OldPlayerInstance> oldInstances = new ArrayList<>();
     private static Player player = null;
 
     private static Game game = null;
 
     public static void AddGameObject(GameObject gameObject) {
 
+        if (gameObject.getId() == ObjectID.Player) {
+            player = (Player) gameObject;
+            return;
+        }
+
         if (gameObject.isMobile()) {
             mobileObjects.add((MobileObject) gameObject);
-            if (gameObject.getId() == ObjectID.Player)
-                player = (Player) gameObject;
         } else {
             stillObjects.add((StillObject) gameObject);
         }
@@ -36,16 +46,14 @@ public class GameObjectHandler {
     public static void RemoveGameObject(GameObject gameObject) {
         if (gameObject.isMobile()) {
             mobileObjects.remove((MobileObject) gameObject);
-            if (gameObject.getId() == ObjectID.Player)
-                player = null;
-        } else
+        } else {
             stillObjects.remove((StillObject) gameObject);
+        }
     }
 
     public static void ClearGameObjects() {
         mobileObjects.clear();
         stillObjects.clear();
-        player = null;
     }
 
     public static void Update(Map currentMap) {
@@ -57,8 +65,18 @@ public class GameObjectHandler {
 
         // Update mobile objects (Except player one)
         for (GameObject object : mobileObjects) {
-            if (object != player)
-                object.Update(currentMap);
+            object.Update(currentMap);
+
+            // Check for old instances if commands finished but still on mobileObject list
+            // Create paradox
+            if(object.id == ObjectID.OldPlayerInstance){
+                OldPlayerInstance oldPlayerInstance = (OldPlayerInstance) object;
+
+                if(oldPlayerInstance.isCommandsFinishedEvent()){
+                    // Create Paradox
+                    LevelFlagsSystem.CreateParadoxOnMob(oldPlayerInstance);
+                }
+            }
         }
 
         // Update the player
@@ -69,55 +87,67 @@ public class GameObjectHandler {
         // Manage collisions
         for (MobileObject mob : mobileObjects) {
             for (StillObject structure : stillObjects) {
+                // If mob is oldInstance, check special collisions
+                if(mob.id == ObjectID.OldPlayerInstance) {
+
+                    OldPlayerInstance oldPlayerInstance = (OldPlayerInstance) mob;
+
+                    // Only if the space event has been triggered by oldInstance
+                    if(oldPlayerInstance.isSpaceEvent()) {
+
+                        // Check collision with the structure
+                        if (ObjectCollisionUtil.isThereCollisionBetween(mob, structure)) {
+
+                            if (structure.id == ObjectID.TimeMachine) {
+                                Logger.Print("Old Instance teleport in time.");
+                                // Remove instance from play
+                                RemoveGameObject(oldPlayerInstance);
+                                continue;
+                            }
+                       //  This case should not be possible
+                            if (structure.id == ObjectID.Objective) {
+                                Logger.Print("Old Instance on Goal. This case should not be possible.");
+                            }
+
+                        }
+                    }
+                }
 
                 // we let the collision handler to manage the interaction
                 ObjectCollisionUtil.manageObjectsCollision(mob, structure);
+
+
             }
         }
 
-        // Interaction between Player and specific stationary objects
-//        Player player = getPlayer();
-//        LevelFlagsSystem.playerOnTimeMachine = false;
-//        LevelFlagsSystem.playerOnGoal = false;
-//        if (player != null) {
-//            for (StillObject structure : stillObjects) {
-//                if (player.getBody().getHitBox().intersects(structure.getBody().getHitBox())) {
-//                    //we got a collision
-//                    if (structure.id == ObjectID.TimeMachine) {
-//                        TimeMachine timeMachine = (TimeMachine) structure;
-//                        //setter for end game condition
-//                        LevelFlagsSystem.playerOnTimeMachine = true;
-//                        //display a help string above time machine
-//                        timeMachine.displayHelpString();
-//                        //System.out.println("Player on Time Machine");
-//                    }
-//                    if (structure.id == ObjectID.Objective) {
-//                        //setter for player - time machine collision
-//                        LevelFlagsSystem.playerOnGoal = true;
-//                        //System.out.println("Player on Goal");
-//                    }
-//                }
-//            }
-//        }
-        // The generate concrete interaction that make objects interract with other objects
-        // the objects that are not solid, are not taken into discussion
-//
-//        for (MobileObject mob : mobileObjects) {
-//            for (StillObject structure : stillObjects) {
-//
-//                // special case: structure is a composit Object
-//                if (structure.getId() == ObjectID.TwoPanScale) {
-//
-//                    TwoPanScale scale = (TwoPanScale) structure;
-//                    ObjectCollisionUtil.manageObjectsCollision(mob, scale.getFirstPan());
-//                    ObjectCollisionUtil.manageObjectsCollision(mob, scale.getSecondPan());
-//                    continue;
-//                }
-//                // we let the collision handler to manage the interaction
-//                ObjectCollisionUtil.manageObjectsCollision(mob, structure);
-//            }
-//        }
+        LevelFlagsSystem.playerOnGoal = false;
+        LevelFlagsSystem.playerOnTimeMachine = false;
+        // Check player collision
+        // If the player was not checked and player is not null
+        if (player != null) {
+            for (StillObject structure : stillObjects) {
 
+                // Check special collisions
+                if (ObjectCollisionUtil.isThereCollisionBetween(player, structure)) {
+
+                    if (structure.id == ObjectID.TimeMachine) {
+//                        Logger.Print("Player on time machine");
+                        LevelFlagsSystem.playerOnTimeMachine = true;
+                    }
+
+                    if (structure.id == ObjectID.Objective) {
+
+//                        Logger.Print("Player on objective");
+                        LevelFlagsSystem.playerOnGoal = true;
+                    }
+                }
+
+                // Adjust position oc collision
+                ObjectCollisionUtil.manageObjectsCollision(player, structure);
+
+
+            }
+        }
     }
 
     public static void Draw(Graphics g) {
@@ -125,41 +155,25 @@ public class GameObjectHandler {
             object.Draw(g);
         }
         for (GameObject object : mobileObjects) {
-            if (object.getId() != ObjectID.Player)
-                object.Draw(g);
+            object.Draw(g);
         }
         if (player != null) {
             player.Draw(g);
         }
     }
 
+    public static void AddOldInstance(OldPlayerInstance oldPlayer){
+        oldInstances.add(oldPlayer);
+    }
+    public static void RenewOldInstances(){
+        mobileObjects.removeIf(mobileObject -> mobileObject.getId() == ObjectID.OldPlayerInstance);
+        mobileObjects.addAll(oldInstances);
+    }
 
-//    public void renewOldInstances() {
-//        ArrayList<MobileObject> toBeRemoved = new ArrayList<>();
-//        for (MobileObject mobile : mobileObjects) {
-//            if (mobile.id == ObjectID.OldPlayerInstance) {
-//                toBeRemoved.add(mobile);
-//            }
-//        }
-//
-//        for (MobileObject removed : toBeRemoved) {
-//            mobileObjects.remove(removed);
-//        }
-//
-//        mobileObjects.addAll(oldInstances);
-//    }
-
-//    public void resetInitialLevelPosition() {
-//        // update mobile objects
-//        for (MobileObject mob : mobileObjects) {
-//            mob.resetToInitialState();
-//        }
-//
-//        // update still objects
-//        for (StillObject structure : stillObjects) {
-//            structure.resetToInitialState();
-//        }
-//    }
+    public static void ClearOldInstances(){
+        mobileObjects.removeIf(mobileObject -> mobileObject.getId() == ObjectID.OldPlayerInstance);
+        oldInstances.clear();
+    }
 
     public static void SetGame(Game game) {
         GameObjectHandler.game = game;
@@ -186,5 +200,9 @@ public class GameObjectHandler {
 
     public static Player GetPlayer() {
         return player;
+    }
+
+    public static ControllerBuilder GetControllerBuilder() {
+        return game.getControllerBuilder();
     }
 }
