@@ -12,6 +12,7 @@ public class FixedController {
 
     private boolean spaceEvent = false;
     private boolean commandsFinishedEvent = false;
+    private boolean firstFinishedEvent = false;
 
     private int commandIndex = 0;
 
@@ -57,12 +58,18 @@ public class FixedController {
         // Check: if index is greater than the number of commands, but instance still on play
         // We identify a paradox
         commandsFinishedEvent = commandIndex >= numberOfCommands;
+        if(commandsFinishedEvent && !firstFinishedEvent){
+            firstFinishedEvent = true;
+            commandsFinishedEvent = false;
+        }
+
     }
 
     public void resetController(){
         commandIndex = 0;
         spaceEvent = false;
         commandsFinishedEvent = false;
+        firstFinishedEvent = false;
     }
 
     @Override

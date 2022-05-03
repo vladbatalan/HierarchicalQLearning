@@ -66,17 +66,6 @@ public class GameObjectHandler {
         // Update mobile objects (Except player one)
         for (GameObject object : mobileObjects) {
             object.Update(currentMap);
-
-            // Check for old instances if commands finished but still on mobileObject list
-            // Create paradox
-            if(object.id == ObjectID.OldPlayerInstance){
-                OldPlayerInstance oldPlayerInstance = (OldPlayerInstance) object;
-
-                if(oldPlayerInstance.isCommandsFinishedEvent()){
-                    // Create Paradox
-                    LevelFlagsSystem.CreateParadoxOnMob(oldPlayerInstance);
-                }
-            }
         }
 
         // Update the player
@@ -111,6 +100,12 @@ public class GameObjectHandler {
 
                         }
                     }
+
+                    if(oldPlayerInstance.isCommandsFinishedEvent()){
+                        // Create Paradox
+                        LevelFlagsSystem.CreateParadoxOnMob(oldPlayerInstance);
+                    }
+
                 }
 
                 // we let the collision handler to manage the interaction

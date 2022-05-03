@@ -1,7 +1,5 @@
 package timebender.levels;
 
-import timebender.gameobjects.GameObject;
-import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.stills.Lever;
 import timebender.gameobjects.stills.Objective;
@@ -15,7 +13,7 @@ import java.util.Objects;
 
 import static timebender.gameobjects.handlers.GameObjectHandler.*;
 
-public class Level0 extends LevelImproved{
+public class Level0 extends Level {
     public Level0() {
         super("Into the laboratory",
                 Objects.requireNonNull(MapBuilder.BuildFromXmlFile("/maps/map-text.xml")));

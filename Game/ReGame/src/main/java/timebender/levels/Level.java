@@ -1,7 +1,6 @@
 package timebender.levels;
 
 import timebender.Logger;
-import timebender.assets.animations.types.lever.LeverTurnedOffAnimation;
 import timebender.gameobjects.ObjectID;
 import timebender.gameobjects.camera.GameCamera;
 import timebender.gameobjects.controllers.ControllerBuilder;
@@ -21,7 +20,7 @@ import java.awt.*;
 import static timebender.gameobjects.handlers.GameObjectHandler.*;
 import static timebender.levels.LevelFlagsSystem.*;
 
-public abstract class LevelImproved {
+public abstract class Level {
 
     // The name of the level
     protected String name;
@@ -40,7 +39,7 @@ public abstract class LevelImproved {
     // Ending point
     protected Objective gameObjective;
 
-    protected LevelImproved(String levelName, Map map) {
+    protected Level(String levelName, Map map) {
         this.name = levelName;
         this.map = map;
         this.timer = new LevelTimer();
@@ -83,6 +82,7 @@ public abstract class LevelImproved {
         if(playerPressedSpaceEvent && playerOnTimeMachine){
             levelToNextIteration();
         }
+
         if(isInstanceOnParadox){
             camera.setFollowedObject(onParadoxMob);
             Logger.Print("Instance on paradox!");

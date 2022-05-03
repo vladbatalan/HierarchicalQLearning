@@ -1,28 +1,17 @@
 package timebender;
 
 import timebender.assets.Assets;
-import timebender.gameobjects.camera.GameCamera;
 import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
-import timebender.gameobjects.stills.Lever;
-import timebender.gameobjects.stills.Objective;
-import timebender.gameobjects.stills.TimeMachine;
-import timebender.gameobjects.stills.TimedGate;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.Level0;
-import timebender.levels.LevelImproved;
-import timebender.map.Map;
-import timebender.map.tiles.Tile;
-import timebender.physics.utils.PointVector;
+import timebender.levels.Level;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.sql.Time;
-
-import static timebender.map.MapBuilder.BuildFromXmlFile;
 
 /**
  * Class responsible for running the instance of the game.
@@ -58,7 +47,7 @@ public class Game implements Runnable {
 
     private MouseInput mouseInput;
     private KeyInput keyInput;
-    private LevelImproved level;
+    private Level level;
 
     public Game() {
         runState = false;
