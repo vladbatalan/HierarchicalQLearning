@@ -149,6 +149,14 @@ public class Body {
         moveStateManager.changeMoveState(nextState);
     }
 
+    public void resetMoveState(){
+        jumpComponent.resetJumpVariables();
+        moveStateManager.resetToInitState();
+        collisionState = new boolean[5];
+        oldPosition = new PointVector(position);
+        resultantForce = new PointVector();
+    }
+
     /**
      * Method responsible for changing the jumping state of the body
      *

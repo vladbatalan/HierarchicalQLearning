@@ -176,7 +176,6 @@ public class GameObjectHandler {
 
     public static void SetPlayer(Player player) {
         GameObjectHandler.player = player;
-        mobileObjects.add(player);
     }
 
     public static int GetFrameNumber() {

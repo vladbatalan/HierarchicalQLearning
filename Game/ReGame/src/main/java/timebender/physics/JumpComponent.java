@@ -67,6 +67,13 @@ public class JumpComponent {
             jumpForce = new PointVector();
     }
 
+    public void resetJumpVariables(){
+        jumpTimer = 0;
+        jumpOnCollisionTime = 0;
+        canJump = false;
+        jumpForce = new PointVector();
+    }
+
     public void setCanJump(boolean canJump) {
         this.canJump = canJump;
     }

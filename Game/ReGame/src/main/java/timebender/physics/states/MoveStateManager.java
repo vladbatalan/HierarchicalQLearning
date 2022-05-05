@@ -67,6 +67,11 @@ public class MoveStateManager {
         return stateFlags;
     }
 
+    public void resetToInitState(){
+        this.moveState = new StandState(bodyContext);
+        this.jumpState = new NoJumpState(bodyContext);
+    }
+
     public String getStateString(){
         return moveState.toString() + jumpState.toString();
     }

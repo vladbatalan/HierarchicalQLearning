@@ -1,6 +1,5 @@
 package timebender.gameobjects.controllers;
 
-import timebender.Logger;
 import timebender.physics.Body;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.states.movecommands.MoveCommandType;
@@ -21,12 +20,6 @@ public class FixedController {
     }
 
     public void execute(int executionTime, Body body){
-
-        // Will execute only if a body exists
-        if(body == null) {
-            System.out.println("A body was not attached to Controller!");
-            return;
-        }
 
         spaceEvent = false;
         int numberOfCommands = commandList.size();

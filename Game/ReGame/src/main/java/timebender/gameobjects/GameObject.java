@@ -51,7 +51,7 @@ public abstract class GameObject {
     }
 
     public void resetToInitialState(){
-        // do nothing for most of the objects
+        body.resetMoveState();
     }
 
     public void setPosition(PointVector newPosition){

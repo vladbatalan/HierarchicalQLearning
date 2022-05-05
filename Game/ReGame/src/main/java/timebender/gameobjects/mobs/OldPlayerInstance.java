@@ -75,6 +75,7 @@ public class OldPlayerInstance extends ControllableObject {
     @Override
     public void resetToInitialState(){
         controller.resetController();
+        body.resetMoveState();
     }
 
     public FixedController getController() {

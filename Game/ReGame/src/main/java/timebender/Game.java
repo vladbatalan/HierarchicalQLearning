@@ -9,6 +9,7 @@ import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.Level0;
 import timebender.levels.Level;
+import timebender.levels.SimpleLevel;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -94,7 +95,7 @@ public class Game implements Runnable {
         GameObjectHandler.AddGameObject(player);
 
         // Initialize level
-        level = new Level0();
+        level = new SimpleLevel();
         level.initLevelObjects();
         level.resetComplete();
     }

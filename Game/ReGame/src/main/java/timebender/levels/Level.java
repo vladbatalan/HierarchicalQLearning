@@ -58,6 +58,8 @@ public abstract class Level {
         for(MobileObject mobileObject : GetMobileObjects()){
             if(mobileObject.isDead()){
                 Logger.Print("Mobile died!");
+                // Level is stopped
+                isLevelRunning = false;
                 // TODO: Offer possibility to subreset level
                 resetComplete();
                 return;
@@ -65,6 +67,8 @@ public abstract class Level {
         }
         if(GetPlayer().isDead()){
             Logger.Print("Player died!");
+            // Level is stopped
+            isLevelRunning = false;
             // TODO: Offer possibility to subreset level
             resetComplete();
             return;
@@ -74,18 +78,33 @@ public abstract class Level {
         if(playerPressedSpaceEvent && playerOnGoal && gameObjective.getActiveState()){
             // TODO: Level complete!
             Logger.Print("Level complete!");
+            // Level is stopped
+            isLevelRunning = false;
         }
 
         // TODO: Take action into reseting/restarting the Level if conditions matched
         // If Space pressed by any, if on timeMachine, teleport
         // If player pressed, levelToNextIteration
         if(playerPressedSpaceEvent && playerOnTimeMachine){
+            // Level is stopped
+            isLevelRunning = false;
             levelToNextIteration();
         }
 
         if(isInstanceOnParadox){
             camera.setFollowedObject(onParadoxMob);
             Logger.Print("Instance on paradox!");
+            // Level is stopped
+            isLevelRunning = false;
+            if(onParadoxMob.id == ObjectID.OldPlayerInstance){
+                OldPlayerInstance oldPlayerInstance = (OldPlayerInstance) onParadoxMob;
+                FixedController fixedController = oldPlayerInstance.getController();
+
+                Logger.Print("List of commands:");
+                for(MoveCommand moveCommand: fixedController.getCommandList()){
+                    Logger.Print(moveCommand.toString());
+                }
+            }
             // TODO: Offer possibility to subreset level
             resetComplete();
         }
@@ -156,6 +175,10 @@ public abstract class Level {
         // Delete all old instances
         ClearOldInstances();
 
+        // Reset controller builder
+        ControllerBuilder controllerBuilder = GetControllerBuilder();
+        controllerBuilder.clearCommands();
+
         // Reset all positions and states
         resetPositions();
 
@@ -187,12 +210,12 @@ public abstract class Level {
         // Create Fixed Controller
         ControllerBuilder controllerBuilder = GetControllerBuilder();
         FixedController fixedController = controllerBuilder.buildController();
-
-        Logger.PrintEndline();
-        for(MoveCommand moveCommand : fixedController.getCommandList()){
-            Logger.Print(moveCommand.toString());
-        }
-        Logger.PrintEndline();
+//
+//        Logger.PrintEndline();
+//        for(MoveCommand moveCommand : fixedController.getCommandList()){
+//            Logger.Print(moveCommand.toString());
+//        }
+//        Logger.PrintEndline();
 
         // Create Old instance using Fixed Controller
         OldPlayerInstance oldPlayerInstance = new OldPlayerInstance(fixedController);
@@ -226,6 +249,7 @@ public abstract class Level {
         PointVector displacementPlayer = new PointVector((float) Player.BODY_WIDTH / 2,
                 TimeMachine.BODY_HEIGHT - Player.BODY_HEIGHT);
         player.setPosition(timeMachinePosition.add(displacementPlayer));
+        player.resetToInitialState();
 
         // Camera follow player
         if (camera != null) {
