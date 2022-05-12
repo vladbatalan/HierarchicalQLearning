@@ -3,15 +3,18 @@ package timebender;
 public class Main {
     public static void main(String[] args) {
 
-        Game timeBenderGame = new Game();
+        GameArgumentConfigurer configurer = new GameArgumentConfigurer(args);
+        Game timeBenderGame = configurer.configureGame();
+        if(timeBenderGame == null)
+            return;
 
         // Active logging
-        Logger.ChangeIsActive(true);
+        Logger.SetIsActive(true);
         Logger.SetGame(timeBenderGame);
 
-        // Start game
-        timeBenderGame.startGame();
-
+        // Create GameAPI for configured game if external control option enabled
+        GameAPI gameAPI = new GameAPI(timeBenderGame);
+        gameAPI.startAPI(4303);
 
     }
 }

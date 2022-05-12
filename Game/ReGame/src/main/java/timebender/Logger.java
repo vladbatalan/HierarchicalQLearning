@@ -20,7 +20,7 @@ public class Logger {
         }
     }
 
-    public static void ChangeIsActive(boolean isActive){
+    public static void SetIsActive(boolean isActive){
         Logger.isActive = isActive;
     }
 

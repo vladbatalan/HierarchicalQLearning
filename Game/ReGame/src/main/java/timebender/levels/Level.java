@@ -48,6 +48,8 @@ public abstract class Level {
     }
 
     public void update() {
+        if(!isLevelRunning)
+            return;
 
         // Update the timer
         timer.update();
@@ -114,6 +116,7 @@ public abstract class Level {
     }
 
     public void draw(Graphics g) {
+
         //sort of background color for map
         g.setColor(new Color(0xF8F77F));
         g.fillRect(0, 0, (int) map.getMaxBounds().getX(), (int) map.getMaxBounds().getY());

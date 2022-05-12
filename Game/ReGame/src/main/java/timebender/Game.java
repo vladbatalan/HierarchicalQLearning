@@ -5,10 +5,12 @@ import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
+import timebender.input.ExternalInput;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.Level0;
 import timebender.levels.Level;
+import timebender.levels.LevelBuilder;
 import timebender.levels.SimpleLevel;
 
 import java.awt.*;
@@ -42,13 +44,18 @@ public class Game implements Runnable {
     public float CURRENT_FRAME_TIME = 0;
     public int currentFrame = 0;
 
+    private String levelString = "SimpleLevel";
+
     /**
      * The map of the game
      */
 
     private MouseInput mouseInput;
     private KeyInput keyInput;
+    private ExternalInput externalInput;
+
     private Level level;
+    private Boolean keyboardInputType;
 
     public Game() {
         runState = false;
@@ -72,6 +79,7 @@ public class Game implements Runnable {
         // Create input listeners
         mouseInput = new MouseInput(this);
         keyInput = new KeyInput(this);
+        externalInput = new ExternalInput();
 
         // Add listeners
         gameWindow.getCanvas().addMouseListener(mouseInput);
@@ -84,8 +92,16 @@ public class Game implements Runnable {
         Player player = new Player();
         // Attach keyboard controller to player
         keyboardController = new KeyboardController(player.getBody(), player.id);
-        // Add keyboard to input
-        keyInput.addKeyboardController(keyboardController);
+
+        // Check the source of the input
+        if(keyboardInputType) {
+            // Add keyboard to input
+            keyInput.addKeyboardController(keyboardController);
+        }
+        else {
+            // Add external input
+            externalInput.addKeyboardController(keyboardController);
+        }
 
         // Create a controllerBuilder for OldPlayerInstances
         controllerBuilder = new ControllerBuilder();
@@ -95,7 +111,7 @@ public class Game implements Runnable {
         GameObjectHandler.AddGameObject(player);
 
         // Initialize level
-        level = new SimpleLevel();
+        level = LevelBuilder.CreateLevel(levelString);
         level.initLevelObjects();
         level.resetComplete();
     }
@@ -203,6 +219,14 @@ public class Game implements Runnable {
 
     public ControllerBuilder getControllerBuilder() {
         return controllerBuilder;
+    }
+
+    public void setLevelCreateString(String levelString){
+        this.levelString = levelString;
+    }
+
+    public void setKeyboardInputType(Boolean keyboardInput) {
+        this.keyboardInputType = keyboardInput;
     }
 }
 
