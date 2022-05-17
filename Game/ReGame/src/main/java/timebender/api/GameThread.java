@@ -1,6 +1,9 @@
 package timebender.api;
 
 import timebender.Game;
+import timebender.input.ExternalInput;
+import timebender.physics.states.movecommands.MoveCommand;
+import timebender.physics.states.movecommands.MoveCommandType;
 
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +38,24 @@ public class GameThread extends Thread {
                 // Check Move Commands
                 if (message.startsWith("Player command: ")) {
                     String command = message.substring("Player command: ".length());
-                    communicationQueue.get(1).add("New state of game");
-                    // Check command type
+//                    System.out.println("Received command: " + command);
+
+                    try {
+                        // Get the command
+                        MoveCommandType moveCommandType = MoveCommandType.valueOf(command);
+                        communicationQueue.get(1).add(command + "(" + game.getCurrentFrame() + ")");
+
+                        // Create command
+                        MoveCommand moveCommand = new MoveCommand(moveCommandType);
+
+                        // Send to External Input
+                        ExternalInput externalInput = game.getExternalInput();
+                        externalInput.receiveCommand(moveCommand);
+
+                    }
+                    catch (IllegalArgumentException e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }

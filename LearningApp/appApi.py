@@ -19,7 +19,7 @@ class AppAPI:
         self.main_process = multiprocessing.Process(target=self.main_loop, args=(server_socket,))
         self.main_process.start()
 
-    def main_loop(self, server_soket):
+    def main_loop(self, server_socket):
         while self.is_loop_on is True:
 
             # Check if the request Queue is Empty
@@ -28,12 +28,18 @@ class AppAPI:
                 # Consume the command from top
                 command = self.request_queue.get()
 
-                # Send command message
-                server_soket.send(command.send_command())
+                try:
+                    # Send command message
+                    server_socket.send(command.send_command())
+
+                except:
+                    # The connection was lost
+                    self.is_loop_on = False
+                    break
 
                 # If there is any message expected
                 if command.receives is True:
-                    received = server_soket.recv(1024)
+                    received = server_socket.recv(1024)
 
                     command.manage_received(received)
 

@@ -2,6 +2,7 @@ package timebender;
 
 import timebender.assets.Assets;
 import timebender.gameobjects.controllers.ControllerBuilder;
+import timebender.gameobjects.controllers.ExternalController;
 import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.Player;
 import timebender.gameobjects.controllers.KeyboardController;
@@ -62,6 +63,7 @@ public class Game implements Runnable {
      * Method responsable for configuring the initialisation parameters of the Game
      */
     public KeyboardController keyboardController;
+    public ExternalController externalController;
     public ControllerBuilder controllerBuilder;
 
     private void initGame() {
@@ -87,22 +89,25 @@ public class Game implements Runnable {
 
         // Create player
         Player player = new Player();
-        // Attach keyboard controller to player
-        keyboardController = new KeyboardController(player.getBody(), player.id);
-
-        // Check the source of the input
-        if(keyboardInputType) {
-            // Add keyboard to input
-            keyInput.addKeyboardController(keyboardController);
-        }
-        else {
-            // Add external input
-            externalInput.addKeyboardController(keyboardController);
-        }
 
         // Create a controllerBuilder for OldPlayerInstances
         controllerBuilder = new ControllerBuilder();
-        keyboardController.attachObserver(controllerBuilder);
+
+        // Check the source of the input
+        if(keyboardInputType) {
+
+            keyboardController = new KeyboardController(player.getBody(), player.id);
+            keyboardController.attachObserver(controllerBuilder);
+            // Add keyboard to input
+            keyInput.addKeyboardController(keyboardController);
+            // Attach keyboard controller to player
+        }
+        else {
+            // Add external input
+            externalController = new ExternalController(player.getBody(), player.getId());
+            externalInput.addExternalController(externalController);
+            externalController.attachObserver(controllerBuilder);
+        }
 
         // Add player to Game Object Handler
         GameObjectHandler.AddGameObject(player);
@@ -232,6 +237,10 @@ public class Game implements Runnable {
             level.resetComplete();
             // System.out.println("level.resetComplete() triggered");
         }
+    }
+
+    public ExternalInput getExternalInput() {
+        return externalInput;
     }
 }
 

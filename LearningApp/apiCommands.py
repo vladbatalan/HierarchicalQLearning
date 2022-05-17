@@ -1,3 +1,14 @@
+class ActionsEnum:
+    RIGHT_PRESSED = "RIGHT_PRESSED"
+    RIGHT_RELEASED = "RIGHT_RELEASED"
+    LEFT_PRESSED = "LEFT_PRESSED"
+    LEFT_RELEASED = "LEFT_RELEASED"
+    JUMP_PRESSED = "JUMP_PRESSED"
+    JUMP_RELEASED = "JUMP_RELEASED"
+    SPACE_RELEASED = "SPACE_RELEASED"
+    NO_ACTION = ""
+
+
 class SendCommand:
 
     def __init__(self, command=None, receives=False):
@@ -35,7 +46,7 @@ class PlayerActionCommand(SendCommand):
         super().__init__("Player command: " + player_comm, True)
 
     def manage_received(self, received):
-        print(str(received))
+        print(str(received)[2:-5])
 
 
 class StopCommand(SendCommand):
@@ -44,3 +55,8 @@ class StopCommand(SendCommand):
 
     def manage_received(self, received):
         print(str(received))
+
+
+class Step(SendCommand):
+    def __init__(self):
+        super().__init__("NextFrameStep", False)

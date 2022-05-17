@@ -1,25 +1,35 @@
 package timebender.input;
 
+import timebender.gameobjects.controllers.ExternalController;
 import timebender.gameobjects.controllers.KeyboardController;
+import timebender.physics.states.movecommands.MoveCommand;
 
 import java.util.ArrayList;
 
 public class ExternalInput {
-    private final ArrayList<KeyboardController> controllers = new ArrayList<>();
+    private final ArrayList<ExternalController> controllers = new ArrayList<>();
 
-    public void ExternalInput(){
+    public ExternalInput(){
         
     }
 
-    public void addKeyboardController(KeyboardController controller){
+    public void receiveCommand(MoveCommand moveCommand){
+        // For loop kept for concurrency reasons
+        for(int index = 0; index < controllers.size(); index ++){
+            ExternalController current = controllers.get(index);
+            current.receiveCommend(moveCommand);
+        }
+    }
+
+    public void addExternalController(ExternalController controller){
         controllers.add(controller);
     }
 
-    public void removeKeyboardController(KeyboardController controller){
+    public void removeExternalController(ExternalController controller){
         controllers.remove(controller);
     }
 
-    public void clearKeyboardContrellers(){
+    public void clearExternalControllers(){
         controllers.clear();
     }
 }

@@ -102,13 +102,13 @@ public class GameAPI{
                 // Restart level command if game is started
                 if("RestartLevel".equals(inputLine) && isGameStarted){
 
-                    // Another thread might be needed
-                    //out.println("Complete restarting the level");
-
                     // Send the command to the game through queue
                     communicationQueue.get(0).add("RestartLevel");
                 }
-                //out.println(inputLine);
+
+                if(inputLine.startsWith("Player command: ")){
+                    communicationQueue.get(0).add(inputLine);
+                }
             }
 
             // Terminate client socket
