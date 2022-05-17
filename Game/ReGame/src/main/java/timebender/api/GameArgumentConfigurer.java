@@ -1,4 +1,6 @@
-package timebender;
+package timebender.api;
+
+import timebender.Game;
 
 import java.util.Arrays;
 

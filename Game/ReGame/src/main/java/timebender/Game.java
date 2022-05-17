@@ -8,10 +8,7 @@ import timebender.gameobjects.controllers.KeyboardController;
 import timebender.input.ExternalInput;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
-import timebender.levels.Level0;
-import timebender.levels.Level;
-import timebender.levels.LevelBuilder;
-import timebender.levels.SimpleLevel;
+import timebender.levels.*;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -227,6 +224,14 @@ public class Game implements Runnable {
 
     public void setKeyboardInputType(Boolean keyboardInput) {
         this.keyboardInputType = keyboardInput;
+    }
+
+    public void restartLevel(){
+        // System.out.println("Restart level activated.");
+        if(level != null) {
+            level.resetComplete();
+            // System.out.println("level.resetComplete() triggered");
+        }
     }
 }
 
