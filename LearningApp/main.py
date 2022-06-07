@@ -91,6 +91,5 @@ if __name__ == '__main__':
     delayed.command(0.6, ActionsEnum.SPACE_RELEASED)
 
 
-    # Wait 20 seconds and disconnect
     time.sleep(3)
     api.stop_main_loop()

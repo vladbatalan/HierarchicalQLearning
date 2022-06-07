@@ -13,6 +13,8 @@ import timebender.levels.*;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class responsible for running the instance of the game.
@@ -232,15 +234,14 @@ public class Game implements Runnable {
     }
 
     public void restartLevel(){
-        // System.out.println("Restart level activated.");
         if(level != null) {
             level.resetComplete();
-            // System.out.println("level.resetComplete() triggered");
         }
     }
 
     public ExternalInput getExternalInput() {
         return externalInput;
     }
+
 }
 

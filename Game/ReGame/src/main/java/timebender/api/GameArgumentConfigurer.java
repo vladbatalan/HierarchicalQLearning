@@ -3,6 +3,8 @@ package timebender.api;
 import timebender.Game;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameArgumentConfigurer {
 
@@ -18,9 +20,8 @@ public class GameArgumentConfigurer {
         this.args = args;
     }
 
-    public Game configureGame(){
-        if(Arrays.asList(args).contains("-h"))
-        {
+    public Game configureGame() {
+        if (Arrays.asList(args).contains("-h")) {
             System.out.println("Help.");
             System.out.println("-lvl <level name> \t for level title (default: SimpleLevel)");
             System.out.println("-g <boolean> \t for graphics mode on or off (default: true)");
@@ -29,58 +30,54 @@ public class GameArgumentConfigurer {
             return null;
         }
 
-        for(int index = 0; index < args.length; index ++){
+        for (int index = 0; index < args.length; index++) {
             String command = args[index];
 
-            if(command.equals("-lvl") && index + 1 < args.length){
+            if (command.equals("-lvl") && index + 1 < args.length) {
                 pickedLevel = args[index + 1];
 
                 boolean ok = false;
-                for(String s : levels){
-                    if(s.equals(pickedLevel)){
+                for (String s : levels) {
+                    if (s.equals(pickedLevel)) {
                         ok = true;
                         break;
                     }
                 }
-                if(!ok){
+                if (!ok) {
                     System.out.println("No level with the name " + args[index + 1] + " found!");
                     return null;
                 }
                 // TODO: Set game level
-                index ++;
+                index++;
                 continue;
             }
 
-            if(command.equals("-g") && index + 1 < args.length){
+            if (command.equals("-g") && index + 1 < args.length) {
                 graphicsMode = null;
-                if(args[index + 1].equals("true"))
+                if (args[index + 1].equals("true"))
                     graphicsMode = true;
-                if(args[index + 1].equals("false"))
+                if (args[index + 1].equals("false"))
                     graphicsMode = false;
 
-                if(graphicsMode == null){
+                if (graphicsMode == null) {
                     System.out.println("Invalid value for -g! Expected: true/false.");
                     return null;
                 }
-                index ++;
+                index++;
                 continue;
             }
 
-            if(command.equals("-ctrl") && index + 1 < args.length){
-                String keyType = args[index+1];
+            if (command.equals("-ctrl") && index + 1 < args.length) {
+                String keyType = args[index + 1];
 
-                if(keyType.equals("keyboard"))
-                    keyboardInput = true;
-                else
-                    keyboardInput = false;
+                keyboardInput = keyType.equals("keyboard");
             }
 
-            // TODO: Complete keyboard input
         }
 
-        if(pickedLevel == null)
+        if (pickedLevel == null)
             pickedLevel = "SimpleLevel";
-        if(graphicsMode == null)
+        if (graphicsMode == null)
             graphicsMode = true;
 
         Game game = new Game();

@@ -6,6 +6,8 @@ import timebender.physics.states.movecommands.MoveCommand;
 
 import java.util.ArrayList;
 
+import static timebender.levels.LevelFlagsSystem.isLevelRunning;
+
 public class ExternalInput {
     private final ArrayList<ExternalController> controllers = new ArrayList<>();
 
@@ -14,6 +16,9 @@ public class ExternalInput {
     }
 
     public void receiveCommand(MoveCommand moveCommand){
+        if(!isLevelRunning)
+            return;
+
         // For loop kept for concurrency reasons
         for(int index = 0; index < controllers.size(); index ++){
             ExternalController current = controllers.get(index);

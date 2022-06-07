@@ -7,7 +7,6 @@ import timebender.physics.states.movecommands.MoveCommandType;
 
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameThread extends Thread {
     private Game game;
