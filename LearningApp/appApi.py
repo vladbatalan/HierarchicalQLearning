@@ -66,3 +66,8 @@ class AppAPI:
     def reset_game(self, full_reset=True):
         commnad = RestartGameCommand(full_reset)
         self.request_queue.put(commnad)
+
+    def step_frame(self):
+        command = StepFrameCommand()
+        self.request_queue.put(command)
+

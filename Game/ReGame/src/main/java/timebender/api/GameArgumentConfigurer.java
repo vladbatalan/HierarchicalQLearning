@@ -15,6 +15,7 @@ public class GameArgumentConfigurer {
     private String pickedLevel = null;
     private Boolean graphicsMode = null;
     private Boolean keyboardInput = true;
+    private Boolean manualStep = false;
 
     public GameArgumentConfigurer(String[] args){
         this.args = args;
@@ -26,6 +27,7 @@ public class GameArgumentConfigurer {
             System.out.println("-lvl <level name> \t for level title (default: SimpleLevel)");
             System.out.println("-g <boolean> \t for graphics mode on or off (default: true)");
             System.out.println("-ctrl <keyboard/external> \t for controller type (default: keyboard)");
+            System.out.println("-manual-step <false/true> \t for controller type (default: false)");
 
             return null;
         }
@@ -47,7 +49,6 @@ public class GameArgumentConfigurer {
                     System.out.println("No level with the name " + args[index + 1] + " found!");
                     return null;
                 }
-                // TODO: Set game level
                 index++;
                 continue;
             }
@@ -71,6 +72,14 @@ public class GameArgumentConfigurer {
                 String keyType = args[index + 1];
 
                 keyboardInput = keyType.equals("keyboard");
+                continue;
+            }
+
+            if (command.equals("-manual-step") && index + 1 < args.length) {
+                 String value = args[index + 1];
+
+                 if("true".equals(value))
+                     manualStep = true;
             }
 
         }
@@ -85,6 +94,8 @@ public class GameArgumentConfigurer {
         game.setLevelCreateString(pickedLevel);
         // Set graphics mode
         game.setKeyboardInputType(keyboardInput);
+        // Set the step mode
+        game.setManualStep(manualStep);
 
         return game;
     }

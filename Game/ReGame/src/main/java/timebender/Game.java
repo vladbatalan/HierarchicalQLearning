@@ -56,6 +56,8 @@ public class Game implements Runnable {
 
     private Level level;
     private Boolean keyboardInputType;
+    private Boolean manualStep = false;
+    private Boolean stepSignal = false;
 
     public Game() {
         runState = false;
@@ -96,15 +98,14 @@ public class Game implements Runnable {
         controllerBuilder = new ControllerBuilder();
 
         // Check the source of the input
-        if(keyboardInputType) {
+        if (keyboardInputType) {
 
             keyboardController = new KeyboardController(player.getBody(), player.id);
             keyboardController.attachObserver(controllerBuilder);
             // Add keyboard to input
             keyInput.addKeyboardController(keyboardController);
             // Attach keyboard controller to player
-        }
-        else {
+        } else {
             // Add external input
             externalController = new ExternalController(player.getBody(), player.getId());
             externalInput.addExternalController(externalController);
@@ -142,7 +143,23 @@ public class Game implements Runnable {
             curentTime = System.nanoTime();
             CURRENT_FRAME_TIME = (float) ((curentTime - oldTime) / timeFrame);
 
-            if ((curentTime - oldTime) > timeFrame) {
+            // Consider the mode of step
+            boolean doFrame = false;
+
+            // In case of automatic step frame
+            if (!manualStep && (curentTime - oldTime) > timeFrame) {
+                doFrame = true;
+            }
+
+            // In case of manual step frame
+            else if (manualStep && stepSignal) {
+                Logger.Print("Game: manual step triggered!");
+                doFrame = true;
+            }
+            
+            if (doFrame) {
+                Logger.Print("Frame (" + getCurrentFrame() + ")");
+                stepSignal = false;
                 currentFrame++;
                 update();
                 draw();
@@ -217,6 +234,12 @@ public class Game implements Runnable {
         g.dispose();
     }
 
+    public void triggerFrameStep() {
+        if (manualStep) {
+            stepSignal = true;
+        }
+    }
+
     public int getCurrentFrame() {
         return level.getFrameNumber();
     }
@@ -225,7 +248,7 @@ public class Game implements Runnable {
         return controllerBuilder;
     }
 
-    public void setLevelCreateString(String levelString){
+    public void setLevelCreateString(String levelString) {
         this.levelString = levelString;
     }
 
@@ -233,8 +256,12 @@ public class Game implements Runnable {
         this.keyboardInputType = keyboardInput;
     }
 
-    public void restartLevel(){
-        if(level != null) {
+    public void setManualStep(Boolean manualStep) {
+        this.manualStep = manualStep;
+    }
+
+    public void restartLevel() {
+        if (level != null) {
             level.resetComplete();
         }
     }

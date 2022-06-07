@@ -49,6 +49,11 @@ class PlayerActionCommand(SendCommand):
         print(str(received)[2:-5])
 
 
+class StepFrameCommand(SendCommand):
+    def __init__(self):
+        super().__init__("FrameStep")
+
+
 class StopCommand(SendCommand):
     def __init__(self):
         super().__init__(".", True)
@@ -56,7 +61,3 @@ class StopCommand(SendCommand):
     def manage_received(self, received):
         print(str(received))
 
-
-class Step(SendCommand):
-    def __init__(self):
-        super().__init__("NextFrameStep", False)

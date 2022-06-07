@@ -88,7 +88,6 @@ public class GameAPI {
                 if ("StartGame".equals(inputLine) && !isGameStarted && game != null) {
 
                     // Another thread might be needed
-                    // out.println("Started the game");
                     isGameStarted = true;
 
                     gameThread = new GameThread(game, communicationQueue);
@@ -100,6 +99,15 @@ public class GameAPI {
 
                     // Send the command to the game through queue
                     communicationQueue.get(0).add("RestartLevel");
+                }
+
+                // Check if it is a step command
+                if ("FrameStep".equals(inputLine) && isGameStarted){
+
+                    // Send the command to the game through queue
+                    Logger.Print("Put FrameStepCommand in queue to send to GameThread");
+                    communicationQueue.get(0).add(inputLine);
+
                 }
 
                 if (inputLine.startsWith("Player command: ")) {

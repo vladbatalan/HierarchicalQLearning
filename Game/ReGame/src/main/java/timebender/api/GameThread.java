@@ -1,6 +1,7 @@
 package timebender.api;
 
 import timebender.Game;
+import timebender.Logger;
 import timebender.input.ExternalInput;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.states.movecommands.MoveCommandType;
@@ -9,7 +10,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameThread extends Thread {
-    private Game game;
+    private final Game game;
     private final ConcurrentHashMap<Integer, LinkedList<String>> communicationQueue;
     private boolean loopIsOn = false;
 
@@ -31,6 +32,17 @@ public class GameThread extends Thread {
                 if ("RestartLevel".equals(message)) {
                     game.restartLevel();
                     communicationQueue.get(1).add("Game restarted");
+                    continue;
+                }
+
+                // Check if it is a step command
+                if ("FrameStep".equals(message))  {
+                    Logger.Print("Before triggering Step Frame ... ");
+                    game.triggerFrameStep();
+                    Logger.Print("After triggering Step Frame.");
+
+
+                    // TODO: communicationQueue should send back the state of the level
                     continue;
                 }
 
