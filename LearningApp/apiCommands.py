@@ -1,3 +1,6 @@
+from typing import List
+
+
 class ActionsEnum:
     RIGHT_PRESSED = "RIGHT_PRESSED"
     RIGHT_RELEASED = "RIGHT_RELEASED"
@@ -10,7 +13,6 @@ class ActionsEnum:
 
 
 class SendCommand:
-
     def __init__(self, command=None, receives=False):
         self.command = command
         self.receives = receives
@@ -20,6 +22,57 @@ class SendCommand:
 
     def manage_received(self, received):
         pass
+
+
+class BulkOfCommands:
+    def __init__(self, command_list: List[SendCommand] = []):
+        self._command_list = command_list
+
+        if len(self._command_list) == 0:
+            self._command_list.append(BulkBeginCommand())
+            self._command_list.append(BulkEndCommand())
+
+        self.builder = self.BulkOfCommandsBuilder()
+
+    def add_command(self, command):
+        last_position = len(self._command_list) - 1
+
+        if self._command_list[last_position] is BulkEndCommand:
+            self._command_list.append(self._command_list[last_position])
+            self._command_list[last_position] = command
+
+        else:
+            self._command_list.append(command)
+            self._command_list.append(BulkEndCommand())
+
+    def get_commands(self):
+        return self._command_list
+
+    class BulkOfCommandsBuilder:
+        def __init__(self):
+            self._command_list: List[SendCommand] = []
+            self._command_list.append(BulkBeginCommand())
+
+        def add_command(self, command):
+            self._command_list.append(command)
+            return self
+
+        def build(self):
+            self._command_list.append(BulkEndCommand())
+            return BulkOfCommands(self._command_list)
+
+
+class BulkBeginCommand(SendCommand):
+    def __init__(self):
+        super().__init__("BulkBegin")
+
+
+class BulkEndCommand(SendCommand):
+    def __init__(self):
+        super().__init__("BulkEnd")
+
+    def manage_received(self, received):
+        print("Bulk ended")
 
 
 class ConfigureGameCommand(SendCommand):
@@ -41,17 +94,28 @@ class RestartGameCommand(SendCommand):
             self.command = "SubRestartLevel"
 
 
-class PlayerActionCommand(SendCommand):
-    def __init__(self, player_comm):
-        super().__init__("Player command: " + player_comm, True)
+class GetStateCommand(SendCommand):
+    def __init__(self):
+        super().__init__("RequestLevelState", True)
 
     def manage_received(self, received):
-        print(str(received)[2:-5])
+        print('From RequestLevelState:', received)
+
+
+class PlayerActionCommand(SendCommand):
+    def __init__(self, player_comm):
+        super().__init__("Player command: " + player_comm, False)
+
+    # def manage_received(self, received):
+    #     print('From Player command:', received)
 
 
 class StepFrameCommand(SendCommand):
     def __init__(self):
         super().__init__("FrameStep")
+
+    def manage_received(self, received):
+        print('From FrameStep:', received)
 
 
 class StopCommand(SendCommand):
@@ -59,5 +123,4 @@ class StopCommand(SendCommand):
         super().__init__(".", True)
 
     def manage_received(self, received):
-        print(str(received))
-
+        print('From StopCommand:', received)

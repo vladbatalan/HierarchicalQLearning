@@ -1,7 +1,6 @@
 package timebender.api;
 
 import timebender.Game;
-import timebender.Logger;
 import timebender.input.ExternalInput;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.states.movecommands.MoveCommandType;
@@ -20,29 +19,32 @@ public class GameThread extends Thread {
     }
 
     private void receiveMessageLoop() {
+        String message;
         while (loopIsOn) {
 
-            if (!communicationQueue.get(0).isEmpty()) {
-
-                // Peek top value
-                String message = communicationQueue.get(0).poll();
-                assert message != null;
+            if (!communicationQueue.get(0).isEmpty() && (message = communicationQueue.get(0).poll()) != null) {
 
                 // Check message type
                 if ("RestartLevel".equals(message)) {
                     game.restartLevel();
-                    communicationQueue.get(1).add("Game restarted");
+                    communicationQueue.get(1).add("CommandEnded");
                     continue;
                 }
 
                 // Check if it is a step command
                 if ("FrameStep".equals(message))  {
-                    Logger.Print("Before triggering Step Frame ... ");
                     game.triggerFrameStep();
-                    Logger.Print("After triggering Step Frame.");
+                    communicationQueue.get(1).add("CommandEnded");
+                    continue;
+                }
 
+                // Check if it is a step command
+                if ("RequestLevelState".equals(message))  {
+                    String status = game.collectLevelStatus();
 
-                    // TODO: communicationQueue should send back the state of the level
+//                    System.out.println("\nState is: " + status + "\n");
+                    communicationQueue.get(1).add(status);
+                    communicationQueue.get(1).add("CommandEnded");
                     continue;
                 }
 
@@ -54,7 +56,7 @@ public class GameThread extends Thread {
                     try {
                         // Get the command
                         MoveCommandType moveCommandType = MoveCommandType.valueOf(command);
-                        communicationQueue.get(1).add(command + "(" + game.getCurrentFrame() + ")");
+//                        communicationQueue.get(1).add(command + "(" + game.getCurrentFrame() + ")");
 
                         // Create command
                         MoveCommand moveCommand = new MoveCommand(moveCommandType);
@@ -63,9 +65,11 @@ public class GameThread extends Thread {
                         ExternalInput externalInput = game.getExternalInput();
                         externalInput.receiveCommand(moveCommand);
 
+                        communicationQueue.get(1).add("CommandEnded");
                     }
                     catch (IllegalArgumentException e){
                         e.printStackTrace();
+                        communicationQueue.get(1).add("CommandEnded");
                     }
                 }
             }
@@ -81,5 +85,6 @@ public class GameThread extends Thread {
 
         // Start the game
         game.startGame();
+        communicationQueue.get(1).add("CommandEnded");
     }
 }

@@ -10,11 +10,13 @@ import timebender.input.ExternalInput;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.*;
+import timebender.map.utils.MapUtils;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Class responsible for running the instance of the game.
@@ -57,7 +59,9 @@ public class Game implements Runnable {
     private Level level;
     private Boolean keyboardInputType;
     private Boolean manualStep = false;
-    private Boolean stepSignal = false;
+    private final ConcurrentLinkedQueue<Boolean> stepSignalQueue = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Boolean> endStepQueue = new ConcurrentLinkedQueue<>();
+    private String gameStateString = "";
 
     public Game() {
         runState = false;
@@ -69,6 +73,7 @@ public class Game implements Runnable {
     public KeyboardController keyboardController;
     public ExternalController externalController;
     public ControllerBuilder controllerBuilder;
+
 
     private void initGame() {
         // Only if the game runs on graphics mode
@@ -145,6 +150,11 @@ public class Game implements Runnable {
 
             // Consider the mode of step
             boolean doFrame = false;
+            boolean stepSignal = false;
+
+            if (!stepSignalQueue.isEmpty()) {
+                stepSignal = stepSignalQueue.poll();
+            }
 
             // In case of automatic step frame
             if (!manualStep && (curentTime - oldTime) > timeFrame) {
@@ -153,24 +163,44 @@ public class Game implements Runnable {
 
             // In case of manual step frame
             else if (manualStep && stepSignal) {
-                Logger.Print("Game: manual step triggered!");
                 doFrame = true;
             }
-            
+
             if (doFrame) {
                 Logger.Print("Frame (" + getCurrentFrame() + ")");
-                stepSignal = false;
                 currentFrame++;
                 update();
                 draw();
                 oldTime = curentTime;
+                if (manualStep) {
+                    endStepQueue.add(true);
+                }
+                updateGameState();
             }
         }
     }
 
+    private void updateGameState() {
+        gameStateString = "<GameState>" +
+                // Player
+                "<Player>" +
+                MapUtils.getTileIndexedCoordinates(
+                        GameObjectHandler
+                                .GetPlayer()
+                                .getPosition()) +
+                "</Player>" +
+
+                // Level state
+                "<LevelState>" +
+                "<running>" + LevelFlagsSystem.isLevelRunning + "</running>" +
+                "</LevelState>" +
+                "<Frame>" + getCurrentFrame() + "</Frame>" +
+                "</GameState>";
+
+    }
 
     /**
-     * Method responsable for creating the main thread of the game and running it.
+     * Method responsible for creating the main thread of the game and running it.
      */
     public synchronized void startGame() {
         if (!runState) {
@@ -181,7 +211,7 @@ public class Game implements Runnable {
     }
 
     /**
-     * Method responsable for stopping the main thread.
+     * Method responsible for stopping the main thread.
      */
     public synchronized void stopGame() {
         if (runState) {
@@ -236,8 +266,17 @@ public class Game implements Runnable {
 
     public void triggerFrameStep() {
         if (manualStep) {
-            stepSignal = true;
+            stepSignalQueue.add(true);
+            while (endStepQueue.isEmpty()) {
+                Thread.onSpinWait();
+            }
+            endStepQueue.poll();
         }
+    }
+
+    public String collectLevelStatus() {
+
+        return this.gameStateString;
     }
 
     public int getCurrentFrame() {
