@@ -61,7 +61,7 @@ public class Game implements Runnable {
     private Boolean manualStep = false;
     private final ConcurrentLinkedQueue<Boolean> stepSignalQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<Boolean> endStepQueue = new ConcurrentLinkedQueue<>();
-    private String gameStateString = "";
+    private LevelStateObserver levelStateObserver;
 
     public Game() {
         runState = false;
@@ -181,22 +181,7 @@ public class Game implements Runnable {
     }
 
     private void updateGameState() {
-        gameStateString = "<GameState>" +
-                // Player
-                "<Player>" +
-                MapUtils.getTileIndexedCoordinates(
-                        GameObjectHandler
-                                .GetPlayer()
-                                .getPosition()) +
-                "</Player>" +
-
-                // Level state
-                "<LevelState>" +
-                "<running>" + LevelFlagsSystem.isLevelRunning + "</running>" +
-                "</LevelState>" +
-                "<Frame>" + getCurrentFrame() + "</Frame>" +
-                "</GameState>";
-
+        levelStateObserver = level.getLevelState();
     }
 
     /**
@@ -275,8 +260,10 @@ public class Game implements Runnable {
     }
 
     public String collectLevelStatus() {
-
-        return this.gameStateString;
+        if(levelStateObserver == null){
+            System.out.println("Got a null status from game method!!!!!!!!");
+        }
+        return levelStateObserver.serialize();
     }
 
     public int getCurrentFrame() {

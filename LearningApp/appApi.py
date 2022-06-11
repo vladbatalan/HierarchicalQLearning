@@ -44,17 +44,18 @@ class AppAPI:
                     print("Connection was lost due to:", str(e))
                     break
 
-
                 # If there is any message expected
                 if command.receives is True:
                     received = None
                     try:
                         received = server_socket.recv(4096).decode()
-                    except:
-                        print("Received problem!")
+                        self.recv_queue.put(received)
+                        command.manage_received(received)
 
-                    self.recv_queue.put(received)
-                    command.manage_received(received)
+                    except Exception as e:
+                        print("Received problem!")
+                        print(e)
+                        break
 
         server_socket.close()
 

@@ -12,6 +12,7 @@ import timebender.gameobjects.stills.Objective;
 import timebender.gameobjects.stills.StillObject;
 import timebender.gameobjects.stills.TimeMachine;
 import timebender.map.Map;
+import timebender.map.utils.MapUtils;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.utils.PointVector;
 
@@ -48,7 +49,7 @@ public abstract class Level {
     }
 
     public void update() {
-        if(!isLevelRunning)
+        if (!isLevelRunning)
             return;
 
         // Update the timer
@@ -57,8 +58,8 @@ public abstract class Level {
         // Use the game handler to update the map
         Update(map);
 
-        for(MobileObject mobileObject : GetMobileObjects()){
-            if(mobileObject.isDead()){
+        for (MobileObject mobileObject : GetMobileObjects()) {
+            if (mobileObject.isDead()) {
                 Logger.Print("Mobile died!");
                 // Level is stopped
                 isLevelRunning = false;
@@ -67,7 +68,7 @@ public abstract class Level {
                 return;
             }
         }
-        if(GetPlayer().isDead()){
+        if (GetPlayer().isDead()) {
             Logger.Print("Player died!");
             // Level is stopped
             isLevelRunning = false;
@@ -77,7 +78,7 @@ public abstract class Level {
         }
 
         // If Space was pressed by player and intersects with objective active
-        if(playerPressedSpaceEvent && playerOnGoal && gameObjective.getActiveState()){
+        if (playerPressedSpaceEvent && playerOnGoal && gameObjective.getActiveState()) {
             // TODO: Level complete!
             Logger.Print("Level complete!");
             // Level is stopped
@@ -87,23 +88,23 @@ public abstract class Level {
         // TODO: Take action into reseting/restarting the Level if conditions matched
         // If Space pressed by any, if on timeMachine, teleport
         // If player pressed, levelToNextIteration
-        if(playerPressedSpaceEvent && playerOnTimeMachine){
+        if (playerPressedSpaceEvent && playerOnTimeMachine) {
             // Level is stopped
             isLevelRunning = false;
             levelToNextIteration();
         }
 
-        if(isInstanceOnParadox){
+        if (isInstanceOnParadox) {
             camera.setFollowedObject(onParadoxMob);
             Logger.Print("Instance on paradox!");
             // Level is stopped
             isLevelRunning = false;
-            if(onParadoxMob.id == ObjectID.OldPlayerInstance){
+            if (onParadoxMob.id == ObjectID.OldPlayerInstance) {
                 OldPlayerInstance oldPlayerInstance = (OldPlayerInstance) onParadoxMob;
                 FixedController fixedController = oldPlayerInstance.getController();
 
                 Logger.Print("List of commands:");
-                for(MoveCommand moveCommand: fixedController.getCommandList()){
+                for (MoveCommand moveCommand : fixedController.getCommandList()) {
                     Logger.Print(moveCommand.toString());
                 }
             }
@@ -186,7 +187,7 @@ public abstract class Level {
         resetPositions();
 
         // Start camera if needed
-        if(camera != null)
+        if (camera != null)
             camera.start();
 
         // Start level
@@ -282,8 +283,18 @@ public abstract class Level {
         }
     }
 
-    public int getFrameNumber(){
+    public int getFrameNumber() {
         return timer.getFrameNumber();
     }
 
+    public LevelStateObserver getLevelState() {
+        return new LevelStateObserver().getStateBuilder()
+                .setLevelRunning(isLevelRunning)
+                .setFrameNumber(getFrameNumber())
+                .setObjective(
+                        gameObjective.getPosition(),
+                        gameObjective.getActiveState())
+                .setPlayerTilePosition(GetPlayer().getPosition())
+                .build();
+    }
 }

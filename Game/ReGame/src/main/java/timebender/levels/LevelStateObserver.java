@@ -1,8 +1,8 @@
 package timebender.levels;
 
+import timebender.map.utils.MapUtils;
 import timebender.physics.utils.PointVector;
 
-import java.util.ArrayList;
 
 public class LevelStateObserver {
 
@@ -11,13 +11,20 @@ public class LevelStateObserver {
     /**
      * Player position.
      */
-    private PointVector playerPosition;
+    private PointVector playerTilePosition;
 
     /**
      * The objective properties.
      */
-    private PointVector objectivePosition;
+    private PointVector objectiveTilePosition;
     private Boolean objectiveActiveState;
+
+    /**
+     * Meta game information.
+     */
+    private Integer frameNumber;
+    private Boolean isLevelRunning;
+
 
 
     public LevelStateObserver(){ stateBuilder = new StateBuilder(this);}
@@ -28,17 +35,27 @@ public class LevelStateObserver {
             this.levelStateObserver = levelStateObserver;
         }
 
-        public StateBuilder setPlayerPosition(PointVector position){
-            levelStateObserver.playerPosition = position;
+        public StateBuilder setPlayerTilePosition(PointVector position){
+            levelStateObserver.playerTilePosition = MapUtils.getTileIndexedCoordinates(position);
             return this;
         }
 
-        public StateBuilder setObjectiveState(PointVector position, Boolean activeState){
-            levelStateObserver.objectivePosition = position;
+        public StateBuilder setFrameNumber(Integer frameNumber){
+            levelStateObserver.frameNumber = frameNumber;
+            return this;
+        }
+
+
+        public StateBuilder setObjective(PointVector position, Boolean activeState){
+            levelStateObserver.objectiveTilePosition = MapUtils.getTileIndexedCoordinates(position);
             levelStateObserver.objectiveActiveState = activeState;
             return this;
         }
 
+        public StateBuilder setLevelRunning(Boolean isLevelRunning){
+            levelStateObserver.isLevelRunning = isLevelRunning;
+            return this;
+        }
 
         public LevelStateObserver build(){
             return levelStateObserver;
@@ -46,7 +63,32 @@ public class LevelStateObserver {
     }
 
     public String serialize(){
-        return "";
+        return "<GameState>" +
+                    "<Player>" +
+                        "<position>" +
+                            playerTilePosition.toString() +
+                        "</position>" +
+                    "</Player>" +
+
+                    "<Objective>" +
+                        "<position>" +
+                            objectiveTilePosition.toString() +
+                        "</position>" +
+                        "<active>" +
+                            objectiveActiveState.toString() +
+                        "</active>" +
+                    "</Objective>" +
+
+                    // Level state
+                    "<LevelState>" +
+                        "<running>" +
+                            isLevelRunning.toString() +
+                        "</running>" +
+                        "<frame>" +
+                        frameNumber +
+                        "</frame>" +
+                    "</LevelState>" +
+                "</GameState>";
     }
 
     public StateBuilder getStateBuilder() {

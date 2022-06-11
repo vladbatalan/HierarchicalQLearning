@@ -23,6 +23,7 @@ if __name__ == '__main__':
 
     # check the step
     for i in range(1000):
+        time.sleep(1)
 
         if i == 30 or i == 200 or i == 400:
             api.exec_command(PlayerActionCommand(ActionsEnum.RIGHT_PRESSED))
