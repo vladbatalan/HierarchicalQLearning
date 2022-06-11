@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.Thread.sleep;
+
 public class GameAPI {
 
     /**
@@ -52,18 +54,23 @@ public class GameAPI {
 
     private void clientCommunicationHandle() {
         while (isClientConnected) {
-            if (!communicationQueue.get(1).isEmpty()) {
 
-//                System.out.println("CommunicationQueue content:");
-//                for(Object s : communicationQueue.get(1).toArray()){
-//                    if(s == null || Objects.equals(s.toString(), ""))
-//                        System.out.print("\t" + "null" + "\n");
-//                    else
-//                        System.out.print("\t" + s.toString() + "\n");
+            if (!communicationQueue.get(1).isEmpty()) {
+//                try {
+//                    sleep(1);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
 //                }
+                System.out.println("CommunicationQueue content:");
+                for(Object s : communicationQueue.get(1).toArray()){
+                    if(s == null || Objects.equals(s.toString(), ""))
+                        System.out.print("\t" + "null" + "\n");
+                    else
+                        System.out.print("\t" + s.toString() + "\n");
+                }
 
                 String message = communicationQueue.get(1).poll();
-                System.out.println(message);
+//                System.out.println(message);
 
                 if(message == null)
                     isClientConnected = false;
@@ -74,7 +81,7 @@ public class GameAPI {
                     Logger.Print("CommandEnded received!");
                 }
                 else{
-                    System.out.println("To send: " + message);
+//                    System.out.println("To send: " + message);
                     out.println(message);
                 }
             }

@@ -261,9 +261,14 @@ public class Game implements Runnable {
 
     public String collectLevelStatus() {
         if(levelStateObserver == null){
-            System.out.println("Got a null status from game method!!!!!!!!");
+            Logger.Error("Got a null as levelStateObserver!");
         }
-        return levelStateObserver.serialize();
+        String serialized = levelStateObserver.serialize();
+        if(serialized == null || "null".equals(serialized)){
+            Logger.Error("Got a null from Serializer of levelStateObserver!");
+        }
+
+        return serialized;
     }
 
     public int getCurrentFrame() {

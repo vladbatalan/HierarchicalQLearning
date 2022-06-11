@@ -14,6 +14,17 @@ public class Logger {
         }
     }
 
+    public static void Error(String message){
+        if(isActive) {
+            LocalTime currentTime = LocalTime.now();
+            String toDisplay = ("[%s]: [ERROR]: " + message).formatted(currentTime);
+
+            System.out.println();
+            System.out.println(toDisplay);
+            System.out.println();
+        }
+    }
+
     public static void PrintEndline() {
         if(isActive) {
             System.out.println();
