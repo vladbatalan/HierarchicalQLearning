@@ -20,6 +20,11 @@ public class LevelFlagsSystem {
     public static MobileObject onParadoxMob = null;
     public static boolean isInstanceOnParadox = false;
 
+    // says if level is complete
+    public static Boolean levelComplete = false;
+    // says if level is lost
+    public static Boolean levelLost = false;
+
 
     public static void CreateParadoxOnMob(MobileObject mob){
         onParadoxMob = mob;
@@ -35,6 +40,10 @@ public class LevelFlagsSystem {
         isInstanceOnParadox = false;
         enablePlayerControl = true;
         playerPressedSpaceEvent = false;
+
+        // For level state purpose
+        levelLost = false;
+        levelComplete = false;
     }
 
 

@@ -31,6 +31,13 @@ public class GameThread extends Thread {
                     continue;
                 }
 
+                // Check message type
+                if ("SubRestartLevel".equals(message)) {
+                    game.subRestartLevel();
+                    communicationQueue.get(1).add("CommandEnded");
+                    continue;
+                }
+
                 // Check if it is a step command
                 if ("FrameStep".equals(message))  {
                     game.triggerFrameStep();

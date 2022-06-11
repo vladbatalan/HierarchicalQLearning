@@ -46,19 +46,19 @@ public class Game implements Runnable {
     public float CURRENT_FRAME_TIME = 0;
     public int currentFrame = 0;
 
-    private String levelString = "SimpleLevel";
-
     /**
-     * The map of the game
+     * Configuration properties.
      */
+    private String levelString = "SimpleLevel";
+    private Boolean keyboardInputType;
+    private Boolean manualStep = false;
+    private Boolean graphicsMode = true;
 
     private MouseInput mouseInput;
     private KeyInput keyInput;
     private ExternalInput externalInput;
 
     private Level level;
-    private Boolean keyboardInputType;
-    private Boolean manualStep = false;
     private final ConcurrentLinkedQueue<Boolean> stepSignalQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<Boolean> endStepQueue = new ConcurrentLinkedQueue<>();
     private LevelStateObserver levelStateObserver;
@@ -77,22 +77,26 @@ public class Game implements Runnable {
 
     private void initGame() {
         // Only if the game runs on graphics mode
-        gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
-        gameWindow.buildGameWindow();
+        if(graphicsMode) {
+            gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
+            gameWindow.buildGameWindow();
+
+            // Create input listeners
+            mouseInput = new MouseInput(this);
+            keyInput = new KeyInput(this);
+
+            // Add listeners
+            gameWindow.getCanvas().addMouseListener(mouseInput);
+            gameWindow.getCanvas().addMouseMotionListener(mouseInput);
+            gameWindow.getJFrame().addKeyListener(keyInput);
+
+        }
 
         // Add this game to GameObjectHandler
         GameObjectHandler.SetGame(this);
         GameObjectHandler.ClearGameObjects();
 
-        // Create input listeners
-        mouseInput = new MouseInput(this);
-        keyInput = new KeyInput(this);
         externalInput = new ExternalInput();
-
-        // Add listeners
-        gameWindow.getCanvas().addMouseListener(mouseInput);
-        gameWindow.getCanvas().addMouseMotionListener(mouseInput);
-        gameWindow.getJFrame().addKeyListener(keyInput);
 
         Assets.init();
 
@@ -110,6 +114,7 @@ public class Game implements Runnable {
             // Add keyboard to input
             keyInput.addKeyboardController(keyboardController);
             // Attach keyboard controller to player
+
         } else {
             // Add external input
             externalController = new ExternalController(player.getBody(), player.getId());
@@ -170,7 +175,10 @@ public class Game implements Runnable {
                 Logger.Print("Frame (" + getCurrentFrame() + ")");
                 currentFrame++;
                 update();
-                draw();
+                if(graphicsMode) {
+                    draw();
+                }
+
                 oldTime = curentTime;
                 if (manualStep) {
                     endStepQueue.add(true);
@@ -214,7 +222,9 @@ public class Game implements Runnable {
      */
     private void update() {
         // Only if Graphics mode is enabled
-        gameWindow.getJFrame().requestFocus();
+        if(graphicsMode) {
+            gameWindow.getJFrame().requestFocus();
+        }
 
         // Update the level
         level.update();
@@ -271,6 +281,19 @@ public class Game implements Runnable {
         return serialized;
     }
 
+
+    public void restartLevel() {
+        if (level != null) {
+            level.resetComplete();
+        }
+    }
+
+    public void subRestartLevel() {
+        if (level != null) {
+            level.resetSubState();
+        }
+    }
+
     public int getCurrentFrame() {
         return level.getFrameNumber();
     }
@@ -291,10 +314,11 @@ public class Game implements Runnable {
         this.manualStep = manualStep;
     }
 
-    public void restartLevel() {
-        if (level != null) {
-            level.resetComplete();
-        }
+    public void setGraphicsMode(Boolean graphicsMode) {
+        // With no graphics mode, the input is external
+        if(!graphicsMode)
+            this.keyboardInputType = false;
+        this.graphicsMode = graphicsMode;
     }
 
     public ExternalInput getExternalInput() {

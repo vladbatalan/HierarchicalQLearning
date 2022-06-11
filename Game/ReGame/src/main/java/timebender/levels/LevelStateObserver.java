@@ -24,6 +24,8 @@ public class LevelStateObserver {
      */
     private Integer frameNumber;
     private Boolean isLevelRunning;
+    private Boolean levelLost;
+    private Boolean levelComplete;
 
 
     public LevelStateObserver() {
@@ -59,6 +61,16 @@ public class LevelStateObserver {
             return this;
         }
 
+        public StateBuilder setLevelLost(Boolean isLevelLost) {
+            levelStateObserver.levelLost = isLevelLost;
+            return this;
+        }
+
+        public StateBuilder setLevelComplete(Boolean isLevelComplete) {
+            levelStateObserver.levelComplete = isLevelComplete;
+            return this;
+        }
+
         public LevelStateObserver build() {
             return levelStateObserver;
         }
@@ -84,6 +96,12 @@ public class LevelStateObserver {
                 "<Running>" +
                 isLevelRunning.toString() +
                 "</Running>" +
+                "<Complete>" +
+                levelComplete.toString() +
+                "</Complete>" +
+                "<Lost>" +
+                levelLost.toString() +
+                "</Lost>" +
                 "<Frame>" +
                 frameNumber +
                 "</Frame>" +

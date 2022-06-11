@@ -169,6 +169,13 @@ public class GameAPI {
             communicationQueue.get(0).add("RestartLevel");
         }
 
+        // Restart level command if game is started
+        if ("SubRestartLevel".equals(command) && isGameStarted) {
+
+            // Send the command to the game through queue
+            communicationQueue.get(0).add("SubRestartLevel");
+        }
+
         // Check if it is a step command
         if ("FrameStep".equals(command) && isGameStarted){
 

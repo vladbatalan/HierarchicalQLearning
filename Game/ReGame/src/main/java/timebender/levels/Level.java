@@ -64,7 +64,8 @@ public abstract class Level {
                 // Level is stopped
                 isLevelRunning = false;
                 // TODO: Offer possibility to subreset level
-                resetComplete();
+                levelLost = true;
+                // resetComplete();
                 return;
             }
         }
@@ -73,7 +74,8 @@ public abstract class Level {
             // Level is stopped
             isLevelRunning = false;
             // TODO: Offer possibility to subreset level
-            resetComplete();
+            levelLost = true;
+            // resetComplete();
             return;
         }
 
@@ -81,6 +83,7 @@ public abstract class Level {
         if (playerPressedSpaceEvent && playerOnGoal && gameObjective.getActiveState()) {
             // TODO: Level complete!
             Logger.Print("Level complete!");
+            levelComplete = true;
             // Level is stopped
             isLevelRunning = false;
         }
@@ -109,7 +112,8 @@ public abstract class Level {
                 }
             }
             // TODO: Offer possibility to subreset level
-            resetComplete();
+            levelLost = true;
+            // resetComplete();
         }
 
         // Reset flags for next frame
@@ -295,6 +299,8 @@ public abstract class Level {
                         gameObjective.getPosition(),
                         gameObjective.getActiveState())
                 .setPlayerTilePosition(GetPlayer().getPosition())
+                .setLevelComplete(levelComplete)
+                .setLevelLost(levelLost)
                 .build();
     }
 }

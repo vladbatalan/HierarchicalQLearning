@@ -93,6 +93,8 @@ public class GameArgumentConfigurer {
         // Set level
         game.setLevelCreateString(pickedLevel);
         // Set graphics mode
+        game.setGraphicsMode(graphicsMode);
+        // Set the input
         game.setKeyboardInputType(keyboardInput);
         // Set the step mode
         game.setManualStep(manualStep);
