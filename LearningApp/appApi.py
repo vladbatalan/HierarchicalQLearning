@@ -1,6 +1,5 @@
 import multiprocessing
 import socket
-import threading
 
 from apiCommands import *
 
@@ -42,7 +41,7 @@ class AppAPI:
                     # The connection was lost
                     self.is_loop_on = False
                     print("Connection was lost due to:", str(e))
-                    break
+                    return
 
                 # If there is any message expected
                 if command.receives is True:
@@ -55,7 +54,7 @@ class AppAPI:
                     except Exception as e:
                         print("Received problem!")
                         print(e)
-                        break
+                        return
 
         server_socket.close()
 

@@ -99,7 +99,8 @@ class GetStateCommand(SendCommand):
         super().__init__("RequestLevelState", True)
 
     def manage_received(self, received):
-        print('From RequestLevelState:', received)
+        pass
+        # print('From RequestLevelState:', received)
 
 
 class PlayerActionCommand(SendCommand):

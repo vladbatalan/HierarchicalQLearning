@@ -56,21 +56,15 @@ public class GameAPI {
         while (isClientConnected) {
 
             if (!communicationQueue.get(1).isEmpty()) {
-//                try {
-//                    sleep(1);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
                 System.out.println("CommunicationQueue content:");
                 for(Object s : communicationQueue.get(1).toArray()){
                     if(s == null || Objects.equals(s.toString(), ""))
                         System.out.print("\t" + "null" + "\n");
                     else
-                        System.out.print("\t" + s.toString() + "\n");
+                        System.out.print("\t" + s + "\n");
                 }
 
                 String message = communicationQueue.get(1).poll();
-//                System.out.println(message);
 
                 if(message == null)
                     isClientConnected = false;
@@ -121,19 +115,6 @@ public class GameAPI {
                     break;
                 }
 
-//                if("BulkBegin".equals(inputLine)){
-//                    StringBuilder bulkCommands = new StringBuilder("BulkBegin\n");
-//
-//                    while((inputLine = in.readLine()) != null && !"BulkEnd".equals(inputLine)){
-//                        bulkCommands.append(inputLine);
-//                        bulkCommands.append("\n");
-//                    }
-//                    bulkCommands.append("BulkEnd\n");
-//
-//                    // This will not read anything until the bulk is fully interpreted
-//                    bulkInterpret(bulkCommands.toString());
-//                    continue;
-//                }
                 commandInterpretor(inputLine);
 
                 // Wait for command to properly end
@@ -156,10 +137,6 @@ public class GameAPI {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void bulkInterpret(String bulkString){
-
     }
 
     private void commandInterpretor(String command){

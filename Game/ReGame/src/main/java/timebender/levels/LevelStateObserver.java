@@ -26,68 +26,68 @@ public class LevelStateObserver {
     private Boolean isLevelRunning;
 
 
+    public LevelStateObserver() {
+        stateBuilder = new StateBuilder(this);
+    }
 
-    public LevelStateObserver(){ stateBuilder = new StateBuilder(this);}
-
-    public static class StateBuilder{
+    public static class StateBuilder {
         private final LevelStateObserver levelStateObserver;
-        public StateBuilder(LevelStateObserver levelStateObserver){
+
+        public StateBuilder(LevelStateObserver levelStateObserver) {
             this.levelStateObserver = levelStateObserver;
         }
 
-        public StateBuilder setPlayerTilePosition(PointVector position){
+        public StateBuilder setPlayerTilePosition(PointVector position) {
             levelStateObserver.playerTilePosition = MapUtils.getTileIndexedCoordinates(position);
             return this;
         }
 
-        public StateBuilder setFrameNumber(Integer frameNumber){
+        public StateBuilder setFrameNumber(Integer frameNumber) {
             levelStateObserver.frameNumber = frameNumber;
             return this;
         }
 
 
-        public StateBuilder setObjective(PointVector position, Boolean activeState){
+        public StateBuilder setObjective(PointVector position, Boolean activeState) {
             levelStateObserver.objectiveTilePosition = MapUtils.getTileIndexedCoordinates(position);
             levelStateObserver.objectiveActiveState = activeState;
             return this;
         }
 
-        public StateBuilder setLevelRunning(Boolean isLevelRunning){
+        public StateBuilder setLevelRunning(Boolean isLevelRunning) {
             levelStateObserver.isLevelRunning = isLevelRunning;
             return this;
         }
 
-        public LevelStateObserver build(){
+        public LevelStateObserver build() {
             return levelStateObserver;
         }
     }
 
-    public String serialize(){
+    public String serialize() {
         return "<GameState>" +
-                    "<Player>" +
-                        "<position>" +
-                            playerTilePosition.toString() +
-                        "</position>" +
-                    "</Player>" +
+                "<Player>" +
+                "<Position x=\"" + (int) playerTilePosition.getX() + "\" y=\"" + (int) playerTilePosition.getY() + "\">" +
+                "</Position>" +
+                "</Player>" +
 
-                    "<Objective>" +
-                        "<position>" +
-                            objectiveTilePosition.toString() +
-                        "</position>" +
-                        "<active>" +
-                            objectiveActiveState.toString() +
-                        "</active>" +
-                    "</Objective>" +
+                "<Objective>" +
+                "<Position x=\"" + (int) objectiveTilePosition.getX() + "\" y=\"" + (int) objectiveTilePosition.getY() + "\">" +
+                "</Position>" +
+                "<Active>" +
+                objectiveActiveState.toString() +
+                "</Active>" +
+                "</Objective>" +
 
-                    // Level state
-                    "<LevelState>" +
-                        "<running>" +
-                            isLevelRunning.toString() +
-                        "</running>" +
-                        "<frame>" +
-                        frameNumber +
-                        "</frame>" +
-                    "</LevelState>" +
+                // Level state
+                "<LevelState>" +
+                "<Running>" +
+                isLevelRunning.toString() +
+                "</Running>" +
+                "<Frame>" +
+                frameNumber +
+                "</Frame>" +
+                "</LevelState>" +
                 "</GameState>";
     }
 

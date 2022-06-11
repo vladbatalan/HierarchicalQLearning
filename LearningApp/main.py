@@ -2,6 +2,7 @@ import time
 
 from apiCommands import *
 from appApi import AppAPI
+from stateDeserializer import CustomDeserializer
 
 HOST = "127.0.0.1"
 PORT = 4303
@@ -19,7 +20,7 @@ if __name__ == '__main__':
     api.exec_command(StartGameCommand())
     api.exec_command(RestartGameCommand())
 
-    time.sleep(5)
+    time.sleep(2)
 
     # check the step
     for i in range(1000):
@@ -33,11 +34,11 @@ if __name__ == '__main__':
         api.exec_command(StepFrameCommand())
 
         if i > 1:
-            state = api.exec_command(GetStateCommand())
-            if state is not None:
-                print("Retreived state:", state)
+            state_string = api.exec_command(GetStateCommand())
+            if state_string is not None:
+                level_state = CustomDeserializer.get_level_state(state_string)
+                print("Retreived state:\n" + str(level_state))
 
-    time.sleep(10)
     api.stop_main_loop()
 
 
