@@ -94,9 +94,18 @@ class RestartGameCommand(SendCommand):
             self.command = "SubRestartLevel"
 
 
-class GetStateCommand(SendCommand):
+class RequestDynamicStateCommand(SendCommand):
     def __init__(self):
         super().__init__("RequestLevelState", True)
+
+    def manage_received(self, received):
+        pass
+        # print('From RequestLevelState:', received)
+
+
+class RequestStaticStateCommand(SendCommand):
+    def __init__(self):
+        super().__init__("RequestInitialState", True)
 
     def manage_received(self, received):
         pass

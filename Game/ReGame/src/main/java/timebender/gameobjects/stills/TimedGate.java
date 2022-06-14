@@ -119,6 +119,13 @@ public class TimedGate extends StillObject implements ISwitchable {
         return body.getPosition();
     }
 
+    @Override
+    public Boolean isActive() {
+        // This returns the opposite of active.
+        // It must show true when gate is opened.
+        return !isActive;
+    }
+
     public void setTimeToFinish(int timeToFinish) {
         this.timeToFinish = timeToFinish;
         this.speed = (float) gateMovingHeight / timeToFinish;

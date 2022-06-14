@@ -64,4 +64,9 @@ public class Objective extends StillObject implements ISwitchable {
     public PointVector getSwitchablePosition(){
         return body.getPosition();
     }
+
+    @Override
+    public Boolean isActive() {
+        return isActive;
+    }
 }

@@ -45,11 +45,15 @@ public class GameThread extends Thread {
                     continue;
                 }
 
-                // Check if it is a step command
                 if ("RequestLevelState".equals(message))  {
-                    String status = game.collectLevelStatus();
+                    String status = game.collectLevelDynamicStatus();
+                    communicationQueue.get(1).add(status);
+                    communicationQueue.get(1).add("CommandEnded");
+                    continue;
+                }
 
-//                    System.out.println("\nState is: " + status + "\n");
+                if ("RequestInitialState".equals(message))  {
+                    String status = game.collectLevelStaticStatus();
                     communicationQueue.get(1).add(status);
                     communicationQueue.get(1).add("CommandEnded");
                     continue;
@@ -58,12 +62,9 @@ public class GameThread extends Thread {
                 // Check Move Commands
                 if (message.startsWith("Player command: ")) {
                     String command = message.substring("Player command: ".length());
-//                    System.out.println("Received command: " + command);
-
                     try {
                         // Get the command
                         MoveCommandType moveCommandType = MoveCommandType.valueOf(command);
-//                        communicationQueue.get(1).add(command + "(" + game.getCurrentFrame() + ")");
 
                         // Create command
                         MoveCommand moveCommand = new MoveCommand(moveCommandType);

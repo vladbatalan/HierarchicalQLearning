@@ -18,6 +18,21 @@ import static java.lang.Thread.sleep;
 public class GameAPI {
 
     /**
+     * Command list.
+     */
+    private final String[] commandList = {
+            // Fully restart the level.
+            "RestartLevel",
+            // Restart just the phase of the level.
+            "SubRestartLevel",
+            // Step a frame of the game.
+            "FrameStep",
+            // The dynamic elements of a level.
+            "RequestLevelState",
+            // The static elements of a level.
+            "RequestInitialState"};
+
+    /**
      * Server properties.
      */
     private ServerSocket serverSocket;
@@ -159,40 +174,21 @@ public class GameAPI {
             isGameStarted = true;
             gameThread = new GameThread(game, communicationQueue);
             gameThread.start();
-
-        }
-
-        // Restart level command if game is started
-        if ("RestartLevel".equals(command) && isGameStarted) {
-
-            // Send the command to the game through queue
-            communicationQueue.get(0).add("RestartLevel");
-        }
-
-        // Restart level command if game is started
-        if ("SubRestartLevel".equals(command) && isGameStarted) {
-
-            // Send the command to the game through queue
-            communicationQueue.get(0).add("SubRestartLevel");
-        }
-
-        // Check if it is a step command
-        if ("FrameStep".equals(command) && isGameStarted){
-
-            // Send the command to the game through queue
-            communicationQueue.get(0).add("FrameStep");
-
-        }
-
-        // Check if it is a step command
-        if ("RequestLevelState".equals(command)){
-            // Send the command to the game through queue
-            communicationQueue.get(0).add("RequestLevelState");
+            return;
         }
 
         // Player command
         if (command.startsWith("Player command: ")) {
             communicationQueue.get(0).add(command);
+            return;
+        }
+
+        for(String commandName : commandList){
+            if(commandName.equals(command)){
+                // Send the command to the game through queue
+                communicationQueue.get(0).add(commandName);
+                return;
+            }
         }
     }
 }

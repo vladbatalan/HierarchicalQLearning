@@ -12,7 +12,6 @@ import timebender.gameobjects.stills.Objective;
 import timebender.gameobjects.stills.StillObject;
 import timebender.gameobjects.stills.TimeMachine;
 import timebender.map.Map;
-import timebender.map.utils.MapUtils;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.utils.PointVector;
 
@@ -291,16 +290,27 @@ public abstract class Level {
         return timer.getFrameNumber();
     }
 
-    public LevelStateObserver getLevelState() {
-        return new LevelStateObserver().getStateBuilder()
+    public LevelStateObject getDynamicLevelState() {
+        return new LevelStateObject().getStateBuilder()
                 .setLevelRunning(isLevelRunning)
                 .setFrameNumber(getFrameNumber())
-                .setObjective(
-                        gameObjective.getPosition(),
-                        gameObjective.getActiveState())
+                // TODO: This to be removed because duplicate
+                .setObjectiveActive(gameObjective.getActiveState())
+                .setStillObjectsState()
                 .setPlayerTilePosition(GetPlayer().getPosition())
                 .setLevelComplete(levelComplete)
                 .setLevelLost(levelLost)
                 .build();
+    }
+
+    public LevelStateObject getStaticLevelState(){
+        return new LevelStateObject().getStateBuilder()
+                .setLevelMap(map)
+                .setInitialPosition()
+                .build();
+    }
+
+    public Map getMap() {
+        return map;
     }
 }

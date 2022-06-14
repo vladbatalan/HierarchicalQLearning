@@ -10,12 +10,9 @@ import timebender.input.ExternalInput;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.*;
-import timebender.map.utils.MapUtils;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
-import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -61,7 +58,8 @@ public class Game implements Runnable {
     private Level level;
     private final ConcurrentLinkedQueue<Boolean> stepSignalQueue = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<Boolean> endStepQueue = new ConcurrentLinkedQueue<>();
-    private LevelStateObserver levelStateObserver;
+    private LevelStateObject levelDynamicStateObserver;
+    private LevelStateObject levelStaticStateObserver;
 
     public Game() {
         runState = false;
@@ -129,6 +127,12 @@ public class Game implements Runnable {
         level = LevelBuilder.CreateLevel(levelString);
         level.initLevelObjects();
         level.resetComplete();
+
+        // Initialize the static level observer
+        levelStaticStateObserver = new LevelStateObject().getStateBuilder()
+                .setLevelMap(level.getMap())
+                .setInitialPosition()
+                .build();
     }
 
     /**
@@ -172,7 +176,7 @@ public class Game implements Runnable {
             }
 
             if (doFrame) {
-                Logger.Print("Frame (" + getCurrentFrame() + ")");
+//                Logger.Print("Frame (" + getCurrentFrame() + ")");
                 currentFrame++;
                 update();
                 if(graphicsMode) {
@@ -189,7 +193,7 @@ public class Game implements Runnable {
     }
 
     private void updateGameState() {
-        levelStateObserver = level.getLevelState();
+        levelDynamicStateObserver = level.getDynamicLevelState();
     }
 
     /**
@@ -269,16 +273,19 @@ public class Game implements Runnable {
         }
     }
 
-    public String collectLevelStatus() {
-        if(levelStateObserver == null){
+    public String collectLevelDynamicStatus() {
+        if(levelDynamicStateObserver == null){
             Logger.Error("Got a null as levelStateObserver!");
         }
-        String serialized = levelStateObserver.serialize();
-        if(serialized == null || "null".equals(serialized)){
-            Logger.Error("Got a null from Serializer of levelStateObserver!");
-        }
+        return levelDynamicStateObserver.serializeDynamicComponents();
+    }
 
-        return serialized;
+
+    public String collectLevelStaticStatus(){
+        if(levelStaticStateObserver == null){
+            Logger.Error("Got a null as levelStateObserver!");
+        }
+        return levelStaticStateObserver.serializeStaticComponents();
     }
 
 

@@ -18,6 +18,9 @@ class ManualWinStrategy_Level0:
         self._api = AppAPI()
         self._delayed = CommandAtDelayTime(self._api)
 
+    def get_api(self):
+        return self._api
+
     def start_game(self, HOST, PORT):
         # Start api
         self._api.start_main_loop(HOST, PORT)
@@ -88,5 +91,6 @@ class ManualWinStrategy_Level0:
         self._delayed.command(0.6, ActionsEnum.SPACE_RELEASED)
         self._delayed.command(0.6, ActionsEnum.SPACE_RELEASED)
 
+    def complete_game(self):
         time.sleep(3)
         self._api.stop_main_loop()
