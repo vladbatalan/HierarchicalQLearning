@@ -9,19 +9,37 @@ class DynamicLevelState:
 
     @property
     def running(self):
-        return self.level_states['Running']
+        if 'Running' in self.level_states.keys():
+            return self.level_states['Running']
+        return None
 
     @property
     def frame(self):
-        return self.level_states['Frame']
+        if 'Frame' in self.level_states.keys():
+            return self.level_states['Frame']
+        return None
+
+    @property
+    def reward(self):
+        if 'Reward' in self.level_states.keys():
+            return self.level_states['Reward']
+        return None
 
     @property
     def complete(self):
-        return self.level_states['Complete']
+        if 'Complete' in self.level_states.keys():
+            return self.level_states['Complete']
+        return None
 
     @property
     def lost(self):
-        return self.level_states['Lost']
+        if 'Lost' in self.level_states.keys():
+            return self.level_states['Lost']
+        return None
+
+    def basic_state_form(self) -> []:
+        obj_states = [state for state in [obj_type for obj_type in sorted(self.still_states)]]
+        return [self.player_position, obj_states]
 
     def __str__(self):
         return "" + \
@@ -34,6 +52,7 @@ class StaticLevelState:
     def __init__(self):
         self.map = []
         self.positions = {}
+        self.extra_states = 0
 
     def __str__(self):
         ret_str = "Map:\n"
@@ -47,6 +66,7 @@ class StaticLevelState:
             for position in self.positions[key]:
                 ret_str += "\t" + str(position) + "\n"
 
+        ret_str += "Extra states: " + str(self.extra_states) + "\n"
         return ret_str
 
 
@@ -56,7 +76,13 @@ class CustomDeserializer:
     def get_dynamic_level_state(level_state_str: str) -> DynamicLevelState:
         level_state = DynamicLevelState()
 
-        my_root = ET.fromstring(level_state_str)
+        my_root = None
+        try:
+            my_root = ET.fromstring(level_state_str)
+        except Exception as e:
+            print(e)
+            print(level_state_str)
+            exit(-1)
 
         # Get player position
         player_pos = my_root.find('Player').find('Position').attrib
@@ -82,7 +108,10 @@ class CustomDeserializer:
             if text in ["true", "false"]:
                 flag_value = (text == "true")
             else:
-                flag_value = int(text)
+                try:
+                    flag_value = int(text)
+                except:
+                    flag_value = float(text)
 
             level_state.level_states[flag.tag] = flag_value
 
@@ -108,5 +137,9 @@ class CustomDeserializer:
             for position in list(object_type):
                 value = (int(position.attrib['x']), int(position.attrib['y']))
                 static_level_state.positions[object_type.tag].append(value)
+
+        # Collect the extra number of states
+        extra_states = my_root.find("ExtraStates")
+        static_level_state.extra_states = int(extra_states.text)
 
         return static_level_state

@@ -10,6 +10,7 @@ import timebender.input.ExternalInput;
 import timebender.input.KeyInput;
 import timebender.input.MouseInput;
 import timebender.levels.*;
+import timebender.levels.reward.IRewardSystem;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -50,6 +51,7 @@ public class Game implements Runnable {
     private Boolean keyboardInputType;
     private Boolean manualStep = false;
     private Boolean graphicsMode = true;
+    private IRewardSystem rewardSystem;
 
     private MouseInput mouseInput;
     private KeyInput keyInput;
@@ -75,7 +77,7 @@ public class Game implements Runnable {
 
     private void initGame() {
         // Only if the game runs on graphics mode
-        if(graphicsMode) {
+        if (graphicsMode) {
             gameWindow = new GameWindow("Dr. TimeBender", GAME_WINDOW_WIDTH, GAME_WINDOW_HEIGHT);
             gameWindow.buildGameWindow();
 
@@ -131,7 +133,7 @@ public class Game implements Runnable {
         // Initialize the static level observer
         levelStaticStateObserver = new LevelStateObject().getStateBuilder()
                 .setLevelMap(level.getMap())
-                .setInitialPosition()
+                .setInitialObjectsState()
                 .build();
     }
 
@@ -179,7 +181,7 @@ public class Game implements Runnable {
 //                Logger.Print("Frame (" + getCurrentFrame() + ")");
                 currentFrame++;
                 update();
-                if(graphicsMode) {
+                if (graphicsMode) {
                     draw();
                 }
 
@@ -194,6 +196,9 @@ public class Game implements Runnable {
 
     private void updateGameState() {
         levelDynamicStateObserver = level.getDynamicLevelState();
+        if (rewardSystem != null) {
+            levelDynamicStateObserver.setReward(rewardSystem.evaluateReward(level));
+        }
     }
 
     /**
@@ -226,7 +231,7 @@ public class Game implements Runnable {
      */
     private void update() {
         // Only if Graphics mode is enabled
-        if(graphicsMode) {
+        if (graphicsMode) {
             gameWindow.getJFrame().requestFocus();
         }
 
@@ -274,15 +279,15 @@ public class Game implements Runnable {
     }
 
     public String collectLevelDynamicStatus() {
-        if(levelDynamicStateObserver == null){
+        if (levelDynamicStateObserver == null) {
             Logger.Error("Got a null as levelStateObserver!");
         }
         return levelDynamicStateObserver.serializeDynamicComponents();
     }
 
 
-    public String collectLevelStaticStatus(){
-        if(levelStaticStateObserver == null){
+    public String collectLevelStaticStatus() {
+        if (levelStaticStateObserver == null) {
             Logger.Error("Got a null as levelStateObserver!");
         }
         return levelStaticStateObserver.serializeStaticComponents();
@@ -309,6 +314,10 @@ public class Game implements Runnable {
         return controllerBuilder;
     }
 
+    public ExternalInput getExternalInput() {
+        return externalInput;
+    }
+
     public void setLevelCreateString(String levelString) {
         this.levelString = levelString;
     }
@@ -323,13 +332,13 @@ public class Game implements Runnable {
 
     public void setGraphicsMode(Boolean graphicsMode) {
         // With no graphics mode, the input is external
-        if(!graphicsMode)
+        if (!graphicsMode)
             this.keyboardInputType = false;
         this.graphicsMode = graphicsMode;
     }
 
-    public ExternalInput getExternalInput() {
-        return externalInput;
+    public void setRewardSystem(IRewardSystem rewardSystem) {
+        this.rewardSystem = rewardSystem;
     }
 
 }

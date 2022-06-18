@@ -1,6 +1,8 @@
 package timebender.api;
 
 import timebender.Game;
+import timebender.levels.reward.IRewardSystem;
+import timebender.levels.reward.OnlyWinLoseRewardSystem;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -16,8 +18,9 @@ public class GameArgumentConfigurer {
     private Boolean graphicsMode = null;
     private Boolean keyboardInput = true;
     private Boolean manualStep = false;
+    private String rewardType = null;
 
-    public GameArgumentConfigurer(String[] args){
+    public GameArgumentConfigurer(String[] args) {
         this.args = args;
     }
 
@@ -28,6 +31,7 @@ public class GameArgumentConfigurer {
             System.out.println("-g <boolean> \t for graphics mode on or off (default: true)");
             System.out.println("-ctrl <keyboard/external> \t for controller type (default: keyboard)");
             System.out.println("-manual-step <false/true> \t for controller type (default: false)");
+            System.out.println("-reward <reward name> \t for controller type (default: OnlyWinLose)");
 
             return null;
         }
@@ -76,10 +80,15 @@ public class GameArgumentConfigurer {
             }
 
             if (command.equals("-manual-step") && index + 1 < args.length) {
-                 String value = args[index + 1];
+                String value = args[index + 1];
 
-                 if("true".equals(value))
-                     manualStep = true;
+                if ("true".equals(value))
+                    manualStep = true;
+                continue;
+            }
+
+            if (command.equals("-reward") && index + 1 < args.length) {
+                rewardType = args[index + 1];
             }
 
         }
@@ -88,6 +97,7 @@ public class GameArgumentConfigurer {
             pickedLevel = "SimpleLevel";
         if (graphicsMode == null)
             graphicsMode = true;
+
 
         Game game = new Game();
         // Set level
@@ -98,7 +108,19 @@ public class GameArgumentConfigurer {
         game.setKeyboardInputType(keyboardInput);
         // Set the step mode
         game.setManualStep(manualStep);
+        // Set the reward
+        game.setRewardSystem(seekRewardSystemType());
 
         return game;
     }
+
+    private IRewardSystem seekRewardSystemType() {
+        switch (rewardType) {
+            case "OnlyWinLose":
+                return new OnlyWinLoseRewardSystem();
+            default:
+                return new OnlyWinLoseRewardSystem();
+        }
+    }
+
 }

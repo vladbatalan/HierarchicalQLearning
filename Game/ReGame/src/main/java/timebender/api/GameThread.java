@@ -5,15 +5,15 @@ import timebender.input.ExternalInput;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.states.movecommands.MoveCommandType;
 
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GameThread extends Thread {
     private final Game game;
-    private final ConcurrentHashMap<Integer, LinkedList<String>> communicationQueue;
+    private final ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> communicationQueue;
     private boolean loopIsOn = false;
 
-    public GameThread(Game game, ConcurrentHashMap<Integer, LinkedList<String>> concurrentLinkedQueue) {
+    public GameThread(Game game, ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> concurrentLinkedQueue) {
         this.game = game;
         this.communicationQueue = concurrentLinkedQueue;
     }

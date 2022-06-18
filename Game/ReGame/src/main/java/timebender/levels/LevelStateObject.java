@@ -32,10 +32,10 @@ public class LevelStateObject {
     private PointVector playerTilePosition;
 
     /**
-     * The objective properties.
+     * The state properties.
      */
-    private Boolean objectiveActiveState;
     private final HashMap<ObjectID, List<Boolean>> activeStates = new HashMap<>();
+    private int objectsWithStates = 0;
 
     /**
      * Meta game information.
@@ -44,6 +44,7 @@ public class LevelStateObject {
     private Boolean isLevelRunning;
     private Boolean levelLost;
     private Boolean levelComplete;
+    private double reward;
 
 
     public LevelStateObject() {
@@ -68,11 +69,6 @@ public class LevelStateObject {
             return this;
         }
 
-        public StateBuilder setObjectiveActive(Boolean activeState) {
-            levelStateObserver.objectiveActiveState = activeState;
-            return this;
-        }
-
         public StateBuilder setLevelRunning(Boolean isLevelRunning) {
             levelStateObserver.isLevelRunning = isLevelRunning;
             return this;
@@ -85,6 +81,11 @@ public class LevelStateObject {
 
         public StateBuilder setLevelComplete(Boolean isLevelComplete) {
             levelStateObserver.levelComplete = isLevelComplete;
+            return this;
+        }
+
+        public StateBuilder setFrameReward(double reward){
+            levelStateObserver.reward = reward;
             return this;
         }
 
@@ -118,7 +119,7 @@ public class LevelStateObject {
             return this;
         }
 
-        public StateBuilder setInitialPosition() {
+        public StateBuilder setInitialObjectsState() {
             HashMap<ObjectID, List<PointVector>> positionHash = levelStateObserver.initialObjPosition;
             positionHash.clear();
             for (StillObject stillObject : GameObjectHandler.GetStillObjects()) {
@@ -134,6 +135,9 @@ public class LevelStateObject {
                                         new PointVector(0, stillObject.getBody().getBodyHeight()-Tile.TILE_HEIGHT)
                                 )
                         );
+
+                if (stillObject instanceof ISwitchable)
+                    levelStateObserver.objectsWithStates ++;
 
                 if (positionHash.containsKey(stillID)) {
                     positionHash.get(stillID).add(tilePosition);
@@ -173,9 +177,10 @@ public class LevelStateObject {
         sb.append("<Complete>").append(levelComplete).append("</Complete>");
         sb.append("<Lost>").append(levelLost).append("</Lost>");
         sb.append("<Frame>").append(frameNumber).append("</Frame>");
+        sb.append("<Reward>").append(reward).append("</Reward>");
         sb.append("</LevelState>");
 
-        // Append states of all Switchables
+        // Append states of all Switchable
         sb.append("<States>");
         for (ObjectID objectID : activeStates.keySet()) {
             sb.append("<").append(objectID.name()).append(">");
@@ -252,8 +257,9 @@ public class LevelStateObject {
 
             sb.append("</").append(objectID.name()).append(">");
         }
-
         sb.append("</Positions>");
+
+        sb.append("<ExtraStates>").append(objectsWithStates).append("</ExtraStates>");
 
 
         sb.append("</GameState>");
@@ -264,5 +270,9 @@ public class LevelStateObject {
 
     public StateBuilder getStateBuilder() {
         return stateBuilder;
+    }
+
+    public void setReward(double reward) {
+        this.reward = reward;
     }
 }

@@ -7,5 +7,6 @@ public enum MoveCommandType {
     LEFT_RELEASED,
     JUMP_PRESSED,
     JUMP_RELEASED,
-    SPACE_RELEASED
+    SPACE_RELEASED,
+    NO_ACTION
 }

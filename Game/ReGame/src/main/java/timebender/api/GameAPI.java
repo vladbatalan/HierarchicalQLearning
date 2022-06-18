@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.Thread.sleep;
 
@@ -52,32 +53,32 @@ public class GameAPI {
     /**
      * Communication elements.
      */
-    private final ConcurrentHashMap<Integer, LinkedList<String>> communicationQueue = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> communicationQueue = new ConcurrentHashMap<>();
     private volatile boolean commandEnded = false;
 
     public GameAPI() {
         this.game = null;
-        communicationQueue.put(0, new LinkedList<>());
-        communicationQueue.put(1, new LinkedList<>());
+        communicationQueue.put(0, new ConcurrentLinkedQueue<>());
+        communicationQueue.put(1, new ConcurrentLinkedQueue<>());
     }
 
     public GameAPI(Game game) {
         this.game = game;
-        communicationQueue.put(0, new LinkedList<>());
-        communicationQueue.put(1, new LinkedList<>());
+        communicationQueue.put(0, new ConcurrentLinkedQueue<>());
+        communicationQueue.put(1, new ConcurrentLinkedQueue<>());
     }
 
     private void clientCommunicationHandle() {
         while (isClientConnected) {
 
             if (!communicationQueue.get(1).isEmpty()) {
-                System.out.println("CommunicationQueue content:");
-                for(Object s : communicationQueue.get(1).toArray()){
-                    if(s == null || Objects.equals(s.toString(), ""))
-                        System.out.print("\t" + "null" + "\n");
-                    else
-                        System.out.print("\t" + s + "\n");
-                }
+                    System.out.println("CommunicationQueue content:");
+                    for(Object s : communicationQueue.get(1).toArray()){
+                        if(s == null || Objects.equals(s.toString(), ""))
+                            System.out.print("\t" + "null" + "\n");
+                        else
+                            System.out.print("\t" + s + "\n");
+                    }
 
                 String message = communicationQueue.get(1).poll();
 

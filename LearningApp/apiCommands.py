@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import List
 
 
-class ActionsEnum:
+class ActionsEnum(Enum):
     RIGHT_PRESSED = "RIGHT_PRESSED"
     RIGHT_RELEASED = "RIGHT_RELEASED"
     LEFT_PRESSED = "LEFT_PRESSED"
@@ -10,6 +11,10 @@ class ActionsEnum:
     JUMP_RELEASED = "JUMP_RELEASED"
     SPACE_RELEASED = "SPACE_RELEASED"
     NO_ACTION = ""
+
+    @staticmethod
+    def get_list() -> []:
+        return list(map(str, ActionsEnum))
 
 
 class SendCommand:

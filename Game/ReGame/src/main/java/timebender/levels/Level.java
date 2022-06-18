@@ -36,6 +36,7 @@ public abstract class Level {
 
     // Starting point
     protected TimeMachine startingTimeMachine;
+
     // Ending point
     protected Objective gameObjective;
 
@@ -294,8 +295,6 @@ public abstract class Level {
         return new LevelStateObject().getStateBuilder()
                 .setLevelRunning(isLevelRunning)
                 .setFrameNumber(getFrameNumber())
-                // TODO: This to be removed because duplicate
-                .setObjectiveActive(gameObjective.getActiveState())
                 .setStillObjectsState()
                 .setPlayerTilePosition(GetPlayer().getPosition())
                 .setLevelComplete(levelComplete)
@@ -306,7 +305,7 @@ public abstract class Level {
     public LevelStateObject getStaticLevelState(){
         return new LevelStateObject().getStateBuilder()
                 .setLevelMap(map)
-                .setInitialPosition()
+                .setInitialObjectsState()
                 .build();
     }
 
