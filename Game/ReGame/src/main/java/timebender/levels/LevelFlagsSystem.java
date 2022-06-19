@@ -3,26 +3,25 @@ package timebender.levels;
 import timebender.gameobjects.mobs.MobileObject;
 
 public class LevelFlagsSystem {
-    // Flags
 
     // the player can move end the map is updating
     public static Boolean isLevelRunning = false;
-
     public static Boolean playerPressedSpaceEvent = false;
+
 
     // we use this to check if pressing space will restart the game creating a new instance of player
     public static Boolean playerOnTimeMachine = false;
-
-    // Player on Goal
     public static Boolean playerOnGoal = false;
+    public static Boolean unsuccessfulCommand = false;
+
 
     // we some kind of system to check if old player instance when press space, maybe
     public static MobileObject onParadoxMob = null;
     public static boolean isInstanceOnParadox = false;
 
-    // says if level is complete
+
+    // Win/lose indicators of the game
     public static Boolean levelComplete = false;
-    // says if level is lost
     public static Boolean levelLost = false;
 
 
@@ -44,6 +43,9 @@ public class LevelFlagsSystem {
         // For level state purpose
         levelLost = false;
         levelComplete = false;
+
+        // Check if a command is unsuccessful
+        unsuccessfulCommand = false;
     }
 
 

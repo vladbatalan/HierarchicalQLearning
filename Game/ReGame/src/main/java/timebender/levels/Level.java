@@ -312,4 +312,8 @@ public abstract class Level {
     public Map getMap() {
         return map;
     }
+
+    public Objective getGameObjective() {
+        return gameObjective;
+    }
 }

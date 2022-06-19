@@ -9,8 +9,7 @@ import timebender.physics.states.movecommands.MoveCommandType;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import static timebender.levels.LevelFlagsSystem.isLevelRunning;
-import static timebender.levels.LevelFlagsSystem.playerPressedSpaceEvent;
+import static timebender.levels.LevelFlagsSystem.*;
 
 /**
  * Class responsible for transmitting the keyboard input to a Player object type.
@@ -32,7 +31,7 @@ public class ExternalController implements ICommandObservable {
         if(!isLevelRunning)
             return;
 
-        if(command == null)
+        if(command == null || command.getCommandType() == MoveCommandType.NO_ACTION)
             return;
 
         if(command.getCommandType() == MoveCommandType.SPACE_RELEASED){
@@ -54,10 +53,15 @@ public class ExternalController implements ICommandObservable {
         String newState = body.getMoveStateManager().getStateString();
         if (!oldState.equals(newState) || command.getCommandType() == MoveCommandType.SPACE_RELEASED) {
 
+            unsuccessfulCommand = false;
             // If body state changed, alert observers the command
             for (ICommandObserver observer : commandObservers) {
                 observer.receiveCommand(command);
             }
+        }
+        else{
+            // The command does not change the state
+            unsuccessfulCommand = true;
         }
     }
 

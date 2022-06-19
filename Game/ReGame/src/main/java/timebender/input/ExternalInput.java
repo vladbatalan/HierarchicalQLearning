@@ -3,6 +3,7 @@ package timebender.input;
 import timebender.gameobjects.controllers.ExternalController;
 import timebender.gameobjects.controllers.KeyboardController;
 import timebender.physics.states.movecommands.MoveCommand;
+import timebender.physics.states.movecommands.MoveCommandType;
 
 import java.util.ArrayList;
 
@@ -16,7 +17,7 @@ public class ExternalInput {
     }
 
     public void receiveCommand(MoveCommand moveCommand){
-        if(!isLevelRunning)
+        if(!isLevelRunning || moveCommand.getCommandType() == MoveCommandType.NO_ACTION)
             return;
 
         // For loop kept for concurrency reasons

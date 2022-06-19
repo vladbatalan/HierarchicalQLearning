@@ -41,11 +41,13 @@ class QLearningUnit:
         return action_index, action[len("ActionsEnum."):]
 
     def train(self, alpha=0.1, gamma=0.95, num_episodes=2000, max_steps=3000, frame_per_step=1, time_delay=0,
-              expl_limit=1, expl_decay=0.05):
+              expl_limit=1, logging=True):
         Q = {}
 
         # Initialize reward for each episode
         rs = np.zeros(num_episodes)
+
+        expl_decay = 1/num_episodes
 
         # Foreach episode
         for episode in range(num_episodes):
@@ -78,6 +80,7 @@ class QLearningUnit:
                 for frame in range(frame_per_step):
                     time.sleep(time_delay)
                     self.api.exec_command(StepFrameCommand())
+
                 next_state = self.api.exec_command(RequestDynamicStateCommand())
                 next_state = CustomDeserializer.get_dynamic_level_state(next_state)
                 basic_next_state_form = str(next_state.basic_state_form())
@@ -102,7 +105,12 @@ class QLearningUnit:
             rs[episode] = reward_sum
             # Decay the exploration factor
             expl_limit -= expl_decay
-            expl_limit = max(expl_limit, 0.02)
+
+            if logging is True:
+                print('Episode:', episode)
+                print('Reward:', reward_sum)
+                print('Explore:', str(expl_limit * 100) + '%')
+                print()
 
         self.plot_results(rs)
 

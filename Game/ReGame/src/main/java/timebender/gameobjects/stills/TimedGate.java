@@ -123,7 +123,7 @@ public class TimedGate extends StillObject implements ISwitchable {
     public Boolean isActive() {
         // This returns the opposite of active.
         // It must show true when gate is opened.
-        return !isActive;
+        return targetHeight == getMinTarget() && isActive;
     }
 
     public void setTimeToFinish(int timeToFinish) {

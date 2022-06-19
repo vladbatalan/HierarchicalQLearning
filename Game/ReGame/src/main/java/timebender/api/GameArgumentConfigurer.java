@@ -1,18 +1,14 @@
 package timebender.api;
 
 import timebender.Game;
-import timebender.levels.reward.IRewardSystem;
-import timebender.levels.reward.OnlyWinLoseRewardSystem;
+import timebender.levels.LevelBuilder;
+import timebender.levels.reward.*;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class GameArgumentConfigurer {
 
     private final String[] args;
-
-    private final String[] levels = {"Level0", "SimpleLevel"};
 
     private String pickedLevel = null;
     private Boolean graphicsMode = null;
@@ -43,7 +39,7 @@ public class GameArgumentConfigurer {
                 pickedLevel = args[index + 1];
 
                 boolean ok = false;
-                for (String s : levels) {
+                for (String s : LevelBuilder.LevelNames()) {
                     if (s.equals(pickedLevel)) {
                         ok = true;
                         break;
@@ -115,11 +111,22 @@ public class GameArgumentConfigurer {
     }
 
     private IRewardSystem seekRewardSystemType() {
+        if(rewardType == null)
+            return new OnlyWinLoseReward();
+
         switch (rewardType) {
             case "OnlyWinLose":
-                return new OnlyWinLoseRewardSystem();
+                return new OnlyWinLoseReward();
+            case "DistanceToTarget":
+                return new DistanceToActiveTargetReward();
+            case "PunishIllegalActions":
+                return new PunishIllegalActionsReward();
+            case "PunishIllegalActionsDistance":
+                return new PunishIllegalActionsAndDistanceReward();
+            case "PromoteAllStatesActive":
+                return new PromoteAllStatesActiveReward();
             default:
-                return new OnlyWinLoseRewardSystem();
+                return new OnlyWinLoseReward();
         }
     }
 

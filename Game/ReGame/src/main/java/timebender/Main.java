@@ -21,8 +21,5 @@ public class Main {
             Logger.SetGame(timeBenderGame);
             timeBenderGame.startGame();
         }
-
-
-
     }
 }

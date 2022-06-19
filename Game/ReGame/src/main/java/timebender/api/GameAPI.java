@@ -72,14 +72,13 @@ public class GameAPI {
         while (isClientConnected) {
 
             if (!communicationQueue.get(1).isEmpty()) {
-                    System.out.println("CommunicationQueue content:");
-                    for(Object s : communicationQueue.get(1).toArray()){
-                        if(s == null || Objects.equals(s.toString(), ""))
-                            System.out.print("\t" + "null" + "\n");
-                        else
-                            System.out.print("\t" + s + "\n");
-                    }
-
+//                    System.out.println("CommunicationQueue content:");
+//                    for(Object s : communicationQueue.get(1).toArray()){
+//                        if(s == null || Objects.equals(s.toString(), ""))
+//                            System.out.print("\t" + "null" + "\n");
+//                        else
+//                            System.out.print("\t" + s + "\n");
+//                    }
                 String message = communicationQueue.get(1).poll();
 
                 if(message == null)
@@ -88,10 +87,16 @@ public class GameAPI {
                 // Gather end command message
                 if ("CommandEnded".equals(message)) {
                     commandEnded = true;
-                    Logger.Print("CommandEnded received!");
+                    // Logger.Print("CommandEnded received!");
                 }
                 else{
 //                    System.out.println("To send: " + message);
+                    try {
+                        Logger.PrintXML(message);
+                    }
+                    catch (Exception e){
+                        // Do nothing. There is no xml string
+                    }
                     out.println(message);
                 }
             }
