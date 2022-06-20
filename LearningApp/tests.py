@@ -1,6 +1,7 @@
 import time
 
 from appApi import AppAPI
+from qLearningUnit import QLearningUnit
 from stateDeserializer import CustomDeserializer
 from apiCommands import *
 from manualWinStrategy import ManualWinStrategy_Level0
@@ -103,3 +104,33 @@ class TestUnit:
             api.exec_command(StepFrameCommand())
 
             api.stop_main_loop()
+
+    class FlatQLearningShould:
+
+        @staticmethod
+        def train_level(level_name, train_file_path, reward_type, frame_per_step=5, max_steps=200, num_episodes=1000,
+                        alpha=0.1, gamma=0.95):
+            learning_unit = QLearningUnit(HOST, PORT)
+
+            learning_unit.init_environment(
+                '-lvl ' + level_name + ' -g false -ctrl external -manual-step true -reward ' + reward_type)
+
+            learning_unit.train(frame_per_step=frame_per_step, max_steps=max_steps, num_episodes=num_episodes,
+                                alpha=alpha, gamma=gamma)
+
+            learning_unit.save_model(train_file_path)
+
+            learning_unit.close_env()
+
+        @staticmethod
+        def perform_with_model(level_name, model_file_path, reward_type='PromoteAllStatesActive', frame_per_step=3,
+                               max_steps=200, gamma=0.95):
+            learning_unit = QLearningUnit(HOST, PORT)
+
+            learning_unit.init_environment(
+                '-lvl ' + level_name + ' -g true -ctrl external -manual-step true -reward ' + reward_type)
+
+            learning_unit.perform_with_model(model_file_path, frame_per_step=frame_per_step, time_delay=0.001,
+                                             gamma=gamma, max_steps=max_steps)
+
+            learning_unit.close_env()

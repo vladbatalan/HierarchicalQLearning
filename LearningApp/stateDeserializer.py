@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+import numpy as np
+
 
 class DynamicLevelState:
     def __init__(self):
@@ -38,8 +40,13 @@ class DynamicLevelState:
         return None
 
     def basic_state_form(self) -> []:
-        obj_states = [state for state in [obj_type for obj_type in sorted(self.still_states)]]
-        return [self.player_position, obj_states]
+        obj_states = []
+
+        for obj in sorted(self.still_states):
+            for active_state in self.still_states[obj]:
+                obj_states.append(active_state)
+
+        return np.array([self.player_position, obj_states]).flatten().tolist()
 
     def __str__(self):
         return "" + \
