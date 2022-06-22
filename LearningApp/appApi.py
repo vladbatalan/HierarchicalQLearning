@@ -63,9 +63,6 @@ class AppAPI:
 
         server_socket.close()
 
-    def bulk_package(self, bulk_command):
-        self.request_queue.put(bulk_command)
-
     def exec_command(self, command):
         self.request_queue.put(command)
 

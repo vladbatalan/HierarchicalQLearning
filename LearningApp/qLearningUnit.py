@@ -22,7 +22,6 @@ class QLearningUnit:
         self.api.exec_command(StartGameCommand())
         self.api.exec_command(StepFrameCommand())
         self.api.exec_command(StepFrameCommand())
-        self.api.exec_command(StepFrameCommand())
 
         # Receive the initial data about de environment to evaluate states
         static_state = self.api.exec_command(RequestStaticStateCommand())
