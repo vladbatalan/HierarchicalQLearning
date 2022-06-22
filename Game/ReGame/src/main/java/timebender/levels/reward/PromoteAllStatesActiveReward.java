@@ -40,10 +40,24 @@ public class PromoteAllStatesActiveReward implements IRewardSystem {
 
             // Unsuccessful attempt
             if(!playerOnTimeMachine && !playerOnGoal){
-                return (allSwitchable + 1) * (-0.5);
+                return (allSwitchable + 1) * (-0.1);
+            }
+
+            if(playerOnTimeMachine){
+                // If number of frames is low, it means that the new Old instance has no purpose
+                // Penalize player
+//                if(GameObjectHandler.GetFrameNumber() < 20){
+//                    System.out.println("Frame: " + GameObjectHandler.GetFrameNumber());
+//                    return -10;
+//                }
+
+                // Limit old instance number
+                if(GameObjectHandler.GetOldInstances().size() > 5){
+                    return -10;
+                }
             }
         }
 
-        return (allSwitchable - activeAmplifier) * (-0.5) ;
+        return (allSwitchable - activeAmplifier) * (-0.1) ;
     }
 }

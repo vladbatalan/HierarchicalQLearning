@@ -1,16 +1,17 @@
-import tests
-from qLearningUnit import QLearningUnit
+from test import tests
 
-HOST = "127.0.0.1"
-PORT = 4303
+
+def q_learn_train(train_path):
+    tests.FlatQLearningShould.train_level(level_name="Level0", train_file_path=train_path,
+                                          reward_type="PromoteAllStatesActive", max_steps=400, alpha=0.5,
+                                          gamma=1, num_episodes=100, graphics="false")
+
+
+def q_learn_perform(model_path):
+    tests.FlatQLearningShould.perform_with_model(level_name="Level0", max_steps=400,
+                                                 model_file_path=model_path, gamma=1)
+
 
 if __name__ == '__main__':
-    # tests.TestUnit.FlatQLearningShould.train_level('Level0', 'train/new_actions.txt',
-    #                                                reward_type='PromoteAllStatesActive', max_steps=800, alpha=0.1,
-    #                                                gamma=1, num_episodes=1000)
-    tests.TestUnit.FlatQLearningShould.perform_with_model('Level0', 'train/more_divided_states.txt', max_steps=400,
-                                                          gamma=0.95)
-
-    # tests.TestUnit.FlatQLearningShould.train_level('Level0', 'train/more_divided_states.txt',
-    #                                                reward_type='PromoteAllStatesActive', max_steps=400, alpha=0.2,
-    #                                                gamma=0.95, num_episodes=30, graphics="false")
+    # q_learn_train("models/train_03.txt")
+    q_learn_perform("models/train_03.txt")

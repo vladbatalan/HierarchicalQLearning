@@ -154,6 +154,7 @@ public class GameAPI {
 
             // After finishing with the client stop server
             serverSocket.close();
+            gameThread.interrupt();
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,46 +1,75 @@
-import time
 import matplotlib.pyplot as plt
 
-from appApi import AppAPI
-from apiCommands import *
 import numpy as np
 
-from stateDeserializer import CustomDeserializer
+from api.env.customenv import CustomEnv
+
+
+def plot_results(rs, alpha, gamma, nr_cum=50):
+    number_of_episodes = len(rs)
+
+    # Plot reward vs episodes
+    # Sliding window average
+    r_cumsum = np.cumsum(np.insert(rs, 0, 0))
+    r_cumsum = (r_cumsum[nr_cum:] - r_cumsum[:-nr_cum]) / nr_cum
+
+    # Plot
+    plt.title('Points over episodes (alpha=' + str(alpha) + ', gamma=' + str(gamma) + ')')
+    plt.ylabel('Points')
+    plt.xlabel('Episodes')
+    plt.plot(r_cumsum)
+    plt.show()
+
+    avg_reward = sum(rs) / len(rs)
+    print('Average reward per episode:', avg_reward)
+
+    # Print number of times the goal was reached
+    n = number_of_episodes // 10
+    num_gs = np.zeros(10)
+    labels = []
+
+    for i in range(10):
+        num_gs[i] = np.sum(rs[i * n:(i + 1) * n] > 0)
+        labels.append(str([i * n, (i + 1) * n]))
+
+    x = np.arange(len(labels))
+    fig, ax = plt.subplots()
+    ax.set_ylabel('Win count')
+    ax.set_title('Times when goal was reached (' + str(n) + ' per sample)')
+    ax.set_xticks(x, labels)
+    rects = ax.bar(x, num_gs)
+    ax.bar_label(rects, padding=5)
+    fig.tight_layout()
+    plt.show()
+
+    print("Rewards: {0}".format(num_gs))
 
 
 class QLearningUnit:
 
-    def __init__(self, host, port):
+    def __init__(self):
         self.Q = None
-        self.action_space = [value for value in HyperActionsEnum.get_list()]
         self.static_state = None
-        self.api = AppAPI()
-        self.api.start_main_loop(host, port)
+        self.env = CustomEnv()
 
-    def init_environment(self, args):
-        self.api.exec_command(ConfigureGameCommand(args))
-        self.api.exec_command(StartGameCommand())
-        self.api.exec_command(StepFrameCommand())
-        self.api.exec_command(StepFrameCommand())
-
-        # Receive the initial data about de environment to evaluate states
-        static_state = self.api.exec_command(RequestStaticStateCommand())
-        self.static_state = CustomDeserializer.get_static_level_state(static_state)
+    def init_environment(self, args, host, port):
+        self.env.start_env(host, port, args)
+        self.static_state = self.env.static_state
 
     def choose_action(self, state, expl_limit):
         exploration = np.random.rand()
         if exploration < expl_limit:
             # Explore: choose a random action
-            action = np.random.choice(self.action_space)
-            action_index = self.action_space.index(action)
+            action = np.random.choice(self.env.action_space)
+            action_index = self.env.action_space.index(action)
         else:
             # Exploit: choose the best action
             action_index = np.argmax(self.Q[state])
-            action = self.action_space[action_index]
+            action = self.env.action_space[action_index]
 
         return action_index, action[len("HyperActionsEnum."):]
 
-    def train(self, alpha=0.1, gamma=0.95, num_episodes=2000, max_steps=3000, frame_per_step=1, time_delay=0,
+    def train(self, alpha=0.1, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
               expl_limit=1, logging=True):
 
         self.Q = {}
@@ -49,7 +78,7 @@ class QLearningUnit:
         rs = np.zeros(num_episodes)
 
         # Initialize the decay
-        expl_decay = 1 / num_episodes
+        expl_decay = (expl_limit - 0.1) / num_episodes
 
         # Foreach episode
         for episode in range(num_episodes):
@@ -58,40 +87,27 @@ class QLearningUnit:
             done = False
 
             # Reset the env
-            self.api.exec_command(RestartGameCommand())
-            self.api.exec_command(StepFrameCommand())
-            self.api.exec_command(StepFrameCommand())
-
-            # Receive the state of the level
-            state = self.api.exec_command(RequestDynamicStateCommand())
-            state = CustomDeserializer.get_dynamic_level_state(state)
+            state = self.env.reset()
 
             while not done:
 
                 # Choose the action to perform
                 basic_state_form = str(state.basic_state_form())
                 if basic_state_form not in self.Q.keys():
-                    self.Q[basic_state_form] = np.full(len(self.action_space), 0.5)
+                    self.Q[basic_state_form] = np.zeros(len(self.env.action_space))
 
+                # Select the next action
                 action_index, action = self.choose_action(basic_state_form, expl_limit)
 
-                # Execute action
-                self.api.exec_command(PlayerSmartCommand(action))
+                # Advance a step
+                next_state, reward, done = self.env.step(action, time_delay=time_delay)
 
-                # Get the new state of the env
-                for frame in range(frame_per_step):
-                    time.sleep(time_delay)
-                    self.api.exec_command(StepFrameCommand())
-
-                next_state = self.api.exec_command(RequestDynamicStateCommand())
-                next_state = CustomDeserializer.get_dynamic_level_state(next_state)
                 basic_next_state_form = str(next_state.basic_state_form())
                 if basic_next_state_form not in self.Q.keys():
-                    self.Q[basic_next_state_form] = np.full(len(self.action_space), 0.5)
+                    self.Q[basic_next_state_form] = np.zeros(len(self.env.action_space))
 
                 # The episode ends when level is win or lost or the frame_number exceed max_steps
-                done = next_state.lost or next_state.complete or t > max_steps
-                reward = next_state.reward
+                done = done or t > max_steps
 
                 # Update the QTable
                 self.Q[basic_state_form][action_index] = (1 - alpha) * self.Q[basic_state_form][
@@ -115,24 +131,18 @@ class QLearningUnit:
                 print('Explore:', str(expl_limit * 100) + '%')
                 print()
 
-        self.plot_results(rs)
+        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1)
 
-    def perform_with_model(self, model_path, max_steps=3000, frame_per_step=1, time_delay=0, gamma=0.95):
+    def perform_with_model(self, model_path, max_steps=3000, time_delay=0, gamma=0.95):
 
         self.load_model(model_path)
 
-        # Reset the env
-        self.api.exec_command(RestartGameCommand())
-        self.api.exec_command(StepFrameCommand())
-        self.api.exec_command(StepFrameCommand())
-
-        # Receive the state of the level
-        state = self.api.exec_command(RequestDynamicStateCommand())
-        state = CustomDeserializer.get_dynamic_level_state(state)
         done = False
-
         reward_sum = 0
         t = 0
+
+        # Reset the env
+        state = self.env.reset()
 
         while not done:
 
@@ -144,16 +154,7 @@ class QLearningUnit:
             # Take the best action
             action_index, action = self.choose_action(basic_state_form, 0)
 
-            # Execute action
-            self.api.exec_command(PlayerSmartCommand(action))
-
-            # Get the new state of the env
-            for frame in range(frame_per_step):
-                time.sleep(time_delay)
-                self.api.exec_command(StepFrameCommand())
-
-            next_state = self.api.exec_command(RequestDynamicStateCommand())
-            next_state = CustomDeserializer.get_dynamic_level_state(next_state)
+            next_state, reward, done = self.env.step(action, time_delay=time_delay)
             basic_next_state_form = str(next_state.basic_state_form())
 
             # This action should not happen
@@ -161,8 +162,7 @@ class QLearningUnit:
                 raise Exception('An unexpected state occured! State:', basic_state_form)
 
             # The episode ends when level is win or lost or the frame_number exceed max_steps
-            done = next_state.lost or next_state.complete or t > max_steps
-            reward = next_state.reward
+            done = done or t > max_steps
 
             # Add reward to total
             reward_sum += reward * gamma ** t
@@ -202,7 +202,7 @@ class QLearningUnit:
 
             elements = line.split(':')
             key = elements[0]
-            values = np.zeros(len(self.action_space))
+            values = np.zeros(len(self.env.action_space))
             str_of_values = elements[1][1:-2].split(', ')
 
             for i in range(len(str_of_values)):
@@ -210,29 +210,5 @@ class QLearningUnit:
 
             self.Q[key] = values
 
-    def plot_results(self, rs):
-        # Plot reward vs episodes
-        # Sliding window average
-        r_cumsum = np.cumsum(np.insert(rs, 0, 0))
-        r_cumsum = (r_cumsum[50:] - r_cumsum[:-50]) / 50
-
-        # Plot
-        plt.title('Reward over episodes')
-        plt.ylabel('Reward')
-        plt.xlabel('Episodes')
-        plt.plot(r_cumsum)
-        plt.show()
-
-        avg_reward = sum(rs) / len(rs)
-        print('Average reward per episode:', avg_reward)
-
-        # Print number of times the goal was reached
-        N = len(rs) // 10
-        num_Gs = np.zeros(10)
-        for i in range(10):
-            num_Gs[i] = np.sum(rs[i * N:(i + 1) * N] > 0)
-
-        print("Rewards: {0}".format(num_Gs))
-
     def close_env(self):
-        self.api.stop_main_loop()
+        self.env.close_env()

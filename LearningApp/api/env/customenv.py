@@ -1,11 +1,15 @@
-from appApi import AppAPI
-from apiCommands import *
-from stateDeserializer import CustomDeserializer, DynamicLevelState
+import time
+
+from api.appApi import AppAPI
+from api.apiCommands import *
+from api.stateDeserializer import CustomDeserializer, DynamicLevelState
 
 
-class Environment:
+class CustomEnv:
     def __init__(self):
         self.static_state = None
+        self.action_space = [value for value in HyperActionsEnum.get_list()]
+
         self.api = AppAPI()
 
     def start_env(self, host, port, config_options=None):
@@ -14,14 +18,21 @@ class Environment:
 
         # Config the game, create config options
         config_string = ""
-        if config_options is not None:
-            for i, (option, value) in enumerate(config_options):
+        if type(config_options) is dict:
+            count = 0
+            for option in config_options:
+                value = config_options[option]
                 config_string += option + " " + value
 
-                if i < len(config_options) - 1:
+                if count < len(config_options) - 1:
                     config_string += " "
 
-        self.api.exec_command(ConfigureGameCommand(config_options))
+                count += 1
+
+        elif type(config_options) is str:
+            config_string += config_options
+
+        self.api.exec_command(ConfigureGameCommand(config_string))
         self.api.exec_command(StartGameCommand())
 
         # Some frames must be skipped
@@ -40,12 +51,13 @@ class Environment:
     def _next_observation(self) -> DynamicLevelState:
         return CustomDeserializer.get_dynamic_level_state(self.api.exec_command(RequestDynamicStateCommand()))
 
-    def step(self, action, frames_per_step=3) -> (DynamicLevelState, float, bool):
+    def step(self, action, frames_per_step=4, time_delay=0) -> (DynamicLevelState, float, bool):
 
         self._take_action(action)
 
         # Skip frames
         for i in range(frames_per_step):
+            time.sleep(time_delay)
             self.api.exec_command(StepFrameCommand())
 
         # Gather current state
@@ -66,4 +78,7 @@ class Environment:
         self.api.exec_command(StepFrameCommand())
 
         return self._next_observation()
+
+    def close_env(self):
+        self.api.stop_main_loop()
 

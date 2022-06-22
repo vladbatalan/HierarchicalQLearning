@@ -1,7 +1,7 @@
 import time
 
-from apiCommands import ActionsEnum
-from appApi import AppAPI
+from api.apiCommands import ActionsEnum
+from api.appApi import AppAPI
 
 
 class CommandAtDelayTime:

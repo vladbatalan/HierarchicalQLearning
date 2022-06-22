@@ -199,4 +199,8 @@ public class GameObjectHandler {
     public static ControllerBuilder GetControllerBuilder() {
         return game.getControllerBuilder();
     }
+
+    public static ArrayList<OldPlayerInstance> GetOldInstances() {
+        return oldInstances;
+    }
 }
