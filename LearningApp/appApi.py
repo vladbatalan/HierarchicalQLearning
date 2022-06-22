@@ -35,13 +35,18 @@ class AppAPI:
                     break
                 try:
                     # Send command message
-                    server_socket.send(command.send_command())
+                    to_send = command.send_command()
+                    if not isinstance(to_send, type([])):
+                        to_send = [to_send]
+
+                    for send in to_send:
+                        server_socket.send(send)
 
                 except Exception as e:
                     # The connection was lost
                     self.is_loop_on = False
                     print("Connection was lost due to:", str(e))
-                    return
+                    raise e
 
                 # If there is any message expected
                 if command.receives is True:

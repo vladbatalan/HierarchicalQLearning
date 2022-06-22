@@ -14,10 +14,10 @@ public class OnlyWinLoseReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(LevelFlagsSystem.levelLost)
-            return -1000;
+            return -5000;
 
         if(LevelFlagsSystem.levelComplete)
-            return 1000;
+            return 5000;
 
         return -0.5;
     }

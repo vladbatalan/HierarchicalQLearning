@@ -9,9 +9,14 @@ import timebender.map.tiles.Tile;
 import timebender.map.utils.MapUtils;
 import timebender.physics.utils.PointVector;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static timebender.map.tiles.Tile.TILE_HEIGHT;
+import static timebender.map.tiles.Tile.TILE_WIDTH;
 
 
 public class LevelStateObject {
@@ -60,7 +65,15 @@ public class LevelStateObject {
 
         // Set for dynamic parts of a level
         public StateBuilder setPlayerTilePosition(PointVector position) {
-            levelStateObserver.playerTilePosition = MapUtils.getTileIndexedCoordinates(position);
+            PointVector indexedPosition = MapUtils.getTileIndexedCoordinates(position);
+
+            if(position.getX() - (indexedPosition.getX() * TILE_WIDTH) > TILE_WIDTH/2)
+                indexedPosition.setX((float) (indexedPosition.getX() + 0.5));
+            if(position.getY() - (indexedPosition.getY() * TILE_HEIGHT) > TILE_HEIGHT/2)
+                indexedPosition.setY((float) (indexedPosition.getY() + 0.5));
+
+            levelStateObserver.playerTilePosition = indexedPosition;
+
             return this;
         }
 
@@ -132,7 +145,7 @@ public class LevelStateObject {
                 PointVector tilePosition =
                         MapUtils.getTileIndexedCoordinates(
                                 stillObject.getPosition().add(
-                                        new PointVector(0, stillObject.getBody().getBodyHeight()-Tile.TILE_HEIGHT)
+                                        new PointVector(0, stillObject.getBody().getBodyHeight()- TILE_HEIGHT)
                                 )
                         );
 
@@ -162,11 +175,15 @@ public class LevelStateObject {
         sb.append("<GameState>");
 
         // Data about Player
+        NumberFormat formatter = new DecimalFormat("0.00");
+        String positionX = formatter.format(playerTilePosition.getX());
+        String positionY = formatter.format(playerTilePosition.getY());
+
         sb.append("<Player>");
         sb.append("<Position x=\"")
-                .append((int) playerTilePosition.getX())
+                .append(positionX)
                 .append("\" y=\"")
-                .append((int) playerTilePosition.getY())
+                .append(positionY)
                 .append("\">");
         sb.append("</Position>");
         sb.append("</Player>");

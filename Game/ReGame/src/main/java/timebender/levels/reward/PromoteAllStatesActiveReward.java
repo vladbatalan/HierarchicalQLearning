@@ -18,35 +18,32 @@ public class PromoteAllStatesActiveReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(levelLost)
-            return -10000;
+            return -5000;
 
         if(levelComplete)
-            return 100000;
+            return 5000;
+
+        // Foreach element that is active give extra reward
+        float activeAmplifier = 0;
+        int allSwitchable = 0;
+        for(StillObject stillObject : GameObjectHandler.GetStillObjects()){
+            if(stillObject instanceof ISwitchable){
+                allSwitchable ++;
+
+                if(((ISwitchable) stillObject).isActive())
+                    activeAmplifier ++;
+            }
+        }
 
         // The SPACE_ACTION was initiated
         if(playerPressedSpaceEvent){
 
             // Unsuccessful attempt
             if(!playerOnTimeMachine && !playerOnGoal){
-                return -10;
+                return (allSwitchable + 1) * (-0.5);
             }
         }
 
-        // Detect other moves that do not have any effect and punish them
-        if(unsuccessfulCommand){
-            unsuccessfulCommand = false;
-            return -10;
-        }
-
-        // Foreach element that is active give extra reward
-        float activeAmplifier = 0;
-        for(StillObject stillObject : GameObjectHandler.GetStillObjects()){
-            if(stillObject instanceof ISwitchable){
-                if(((ISwitchable) stillObject).isActive())
-                    activeAmplifier ++;
-            }
-        }
-
-        return -0.5 + 5 * activeAmplifier;
+        return (allSwitchable - activeAmplifier) * (-0.5) ;
     }
 }

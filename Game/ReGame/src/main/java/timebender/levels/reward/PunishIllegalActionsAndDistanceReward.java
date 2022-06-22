@@ -17,10 +17,10 @@ public class PunishIllegalActionsAndDistanceReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(levelLost)
-            return -2000;
+            return -5000;
 
         if(levelComplete)
-            return 10000;
+            return 5000;
 
         // The SPACE_ACTION was initiated
         if(playerPressedSpaceEvent){
@@ -31,11 +31,11 @@ public class PunishIllegalActionsAndDistanceReward implements IRewardSystem {
             }
         }
 
-        // Detect other moves that do not have any effect and punish them
-        if(unsuccessfulCommand){
-            unsuccessfulCommand = false;
-            return -5;
-        }
+//        // Detect other moves that do not have any effect and punish them
+//        if(unsuccessfulCommand){
+//            unsuccessfulCommand = false;
+//            return -5;
+//        }
 
         if(level.getGameObjective().getActiveState()) {
             PointVector playerPosition = GameObjectHandler.GetPlayer().getPosition();

@@ -93,7 +93,7 @@ class CustomDeserializer:
 
         # Get player position
         player_pos = my_root.find('Player').find('Position').attrib
-        level_state.player_position = (int(player_pos['x']), int(player_pos['y']))
+        level_state.player_position = (float(player_pos['x']), float(player_pos['y']))
 
         # Get active states
         states = my_root.find('States')

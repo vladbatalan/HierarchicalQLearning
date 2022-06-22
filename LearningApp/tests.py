@@ -109,11 +109,11 @@ class TestUnit:
 
         @staticmethod
         def train_level(level_name, train_file_path, reward_type, frame_per_step=5, max_steps=200, num_episodes=1000,
-                        alpha=0.1, gamma=0.95):
+                        alpha=0.1, gamma=0.95, graphics="false"):
             learning_unit = QLearningUnit(HOST, PORT)
 
             learning_unit.init_environment(
-                '-lvl ' + level_name + ' -g false -ctrl external -manual-step true -reward ' + reward_type)
+                '-lvl ' + level_name + ' -g ' + graphics + ' -ctrl external -manual-step true -reward ' + reward_type)
 
             learning_unit.train(frame_per_step=frame_per_step, max_steps=max_steps, num_episodes=num_episodes,
                                 alpha=alpha, gamma=gamma)

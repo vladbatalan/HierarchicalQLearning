@@ -10,11 +10,25 @@ class ActionsEnum(Enum):
     JUMP_PRESSED = "JUMP_PRESSED"
     JUMP_RELEASED = "JUMP_RELEASED"
     SPACE_RELEASED = "SPACE_RELEASED"
-    NO_ACTION = ""
+    NO_ACTION = "NO_ACTION"
 
     @staticmethod
     def get_list() -> []:
         return list(map(str, ActionsEnum))
+
+
+class HyperActionsEnum(Enum):
+    SPACE_RELEASED = "SPACE_RELEASED"
+    STAND_ACTION = "STAND"  # Left_released + Right_released
+    LEFT_PRESSED = "LEFT_PRESSED"
+    RIGHT_PRESSED = "RIGHT_PRESSED"
+    JUMP_PRESSED = "JUMP_PRESSED"
+    JUMP_RELEASED = "JUMP_RELEASED"
+    NO_ACTION = "NO_ACTION"
+
+    @staticmethod
+    def get_list() -> []:
+        return list(map(str, HyperActionsEnum))
 
 
 class SendCommand:
@@ -22,62 +36,24 @@ class SendCommand:
         self.command = command
         self.receives = receives
 
-    def send_command(self) -> bytes:
-        return bytes(self.command + '\r\n', 'UTF-8')
+    def send_command(self) -> []:
+        return [bytes(self.command + '\r\n', 'UTF-8')]
 
     def manage_received(self, received):
         pass
 
 
-class BulkOfCommands:
-    def __init__(self, command_list: List[SendCommand] = []):
-        self._command_list = command_list
+class PlayerSmartCommand(SendCommand):
+    def __init__(self, command=None):
+        super().__init__(command)
 
-        if len(self._command_list) == 0:
-            self._command_list.append(BulkBeginCommand())
-            self._command_list.append(BulkEndCommand())
-
-        self.builder = self.BulkOfCommandsBuilder()
-
-    def add_command(self, command):
-        last_position = len(self._command_list) - 1
-
-        if self._command_list[last_position] is BulkEndCommand:
-            self._command_list.append(self._command_list[last_position])
-            self._command_list[last_position] = command
-
+    def send_command(self) -> []:
+        addition = "Player command: "
+        if self.command == "STAND_ACTION":
+            return [bytes(addition + str(ActionsEnum.RIGHT_RELEASED.value) + '\r\n', 'UTF-8'),
+                    bytes(addition + str(ActionsEnum.LEFT_RELEASED.value) + '\r\n', 'UTF-8')]
         else:
-            self._command_list.append(command)
-            self._command_list.append(BulkEndCommand())
-
-    def get_commands(self):
-        return self._command_list
-
-    class BulkOfCommandsBuilder:
-        def __init__(self):
-            self._command_list: List[SendCommand] = []
-            self._command_list.append(BulkBeginCommand())
-
-        def add_command(self, command):
-            self._command_list.append(command)
-            return self
-
-        def build(self):
-            self._command_list.append(BulkEndCommand())
-            return BulkOfCommands(self._command_list)
-
-
-class BulkBeginCommand(SendCommand):
-    def __init__(self):
-        super().__init__("BulkBegin")
-
-
-class BulkEndCommand(SendCommand):
-    def __init__(self):
-        super().__init__("BulkEnd")
-
-    def manage_received(self, received):
-        print("Bulk ended")
+            return [bytes(addition + str(self.command) + '\r\n', 'UTF-8')]
 
 
 class ConfigureGameCommand(SendCommand):

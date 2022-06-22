@@ -32,12 +32,12 @@ public class PunishIllegalActionsReward implements IRewardSystem {
                 return -5;
             }
         }
-
-        // Detect other moves that do not have any effect and punish them
-        if(unsuccessfulCommand){
-            unsuccessfulCommand = false;
-            return -5;
-        }
+//
+//        // Detect other moves that do not have any effect and punish them
+//        if(unsuccessfulCommand){
+//            unsuccessfulCommand = false;
+//            return -5;
+//        }
 
         return -0.5;
     }

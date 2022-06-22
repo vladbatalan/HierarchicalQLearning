@@ -17,10 +17,10 @@ public class DistanceToActiveTargetReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(LevelFlagsSystem.levelLost)
-            return -2000;
+            return -5000;
 
         if(LevelFlagsSystem.levelComplete)
-            return 10000;
+            return 5000;
 
         if(level.getGameObjective().getActiveState()) {
             PointVector playerPosition = GameObjectHandler.GetPlayer().getPosition();

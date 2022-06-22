@@ -12,7 +12,7 @@ class QLearningUnit:
 
     def __init__(self, host, port):
         self.Q = None
-        self.action_space = [value for value in ActionsEnum.get_list()]
+        self.action_space = [value for value in HyperActionsEnum.get_list()]
         self.static_state = None
         self.api = AppAPI()
         self.api.start_main_loop(host, port)
@@ -35,11 +35,11 @@ class QLearningUnit:
             action = np.random.choice(self.action_space)
             action_index = self.action_space.index(action)
         else:
-            # Exploit: choose teh best action
+            # Exploit: choose the best action
             action_index = np.argmax(self.Q[state])
             action = self.action_space[action_index]
 
-        return action_index, action[len("ActionsEnum."):]
+        return action_index, action[len("HyperActionsEnum."):]
 
     def train(self, alpha=0.1, gamma=0.95, num_episodes=2000, max_steps=3000, frame_per_step=1, time_delay=0,
               expl_limit=1, logging=True):
@@ -77,7 +77,7 @@ class QLearningUnit:
                 action_index, action = self.choose_action(basic_state_form, expl_limit)
 
                 # Execute action
-                self.api.exec_command(PlayerActionCommand(action))
+                self.api.exec_command(PlayerSmartCommand(action))
 
                 # Get the new state of the env
                 for frame in range(frame_per_step):
@@ -146,7 +146,7 @@ class QLearningUnit:
             action_index, action = self.choose_action(basic_state_form, 0)
 
             # Execute action
-            self.api.exec_command(PlayerActionCommand(action))
+            self.api.exec_command(PlayerSmartCommand(action))
 
             # Get the new state of the env
             for frame in range(frame_per_step):
@@ -231,10 +231,9 @@ class QLearningUnit:
         N = len(rs) // 10
         num_Gs = np.zeros(10)
         for i in range(10):
-            num_Gs[i] = np.sum(rs[i * N:(i + 1) * N] > 8000)
+            num_Gs[i] = np.sum(rs[i * N:(i + 1) * N] > 0)
 
         print("Rewards: {0}".format(num_Gs))
-
 
     def close_env(self):
         self.api.stop_main_loop()
