@@ -23,8 +23,11 @@ class Node(abc.ABC):
 
         self.primitive_action = primitive_action
 
+    def set_children(self, children):
+        self.children = list(sorted(children, key=lambda child: child.name))
+
     def is_primitive(self) -> bool:
-        return self.primitive_action is None
+        return self.primitive_action is not None
 
     def is_terminal(self, state: DynamicLevelState) -> bool:
         if self.is_primitive():
@@ -65,14 +68,17 @@ class Node(abc.ABC):
             self.V[nw_state] = 0
 
         self.C[crr_state][action_index] = (1 - self.alpha) * self.C[crr_state][action_index] + self.alpha * (
-                    gamma ** t) * self.V[nw_state]
+                gamma ** t) * self.V[nw_state]
 
     def update_V(self, crr_state: DynamicLevelState, reward):
         if crr_state not in self.V:
             self.V[crr_state] = 0
 
         self.V[crr_state] = (1 - self.alpha) * self.V[crr_state] + self.alpha * reward
-        
+
+    def clone(self):
+        return Node(self.name, self.children, self.primitive_action, self.alpha)
+
 
 class TravelNode(Node):
     def __init__(self, name, dest: (int, int), children=None, alpha=0.5):
@@ -89,3 +95,21 @@ class TravelNode(Node):
         # TODO: Include a max-step parameter for destinations that cannot be accessed
 
         return state.lost or state.complete
+
+    def clone(self):
+        return TravelNode(self.name, self.destination, self.children, self.alpha)
+
+
+def print_maxQ_tree(root_node: Node, ident=0, delim="   |"):
+    for i in range(ident):
+        print(delim, end="")
+
+    print(root_node.name, end="")
+
+    if not root_node.is_primitive():
+        print(":")
+        for child_node in root_node.children:
+            print_maxQ_tree(child_node, ident + 1, delim)
+
+    else:
+        print("[ action =", root_node.primitive_action.name, "]")

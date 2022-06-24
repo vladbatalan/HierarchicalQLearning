@@ -1,7 +1,7 @@
 import multiprocessing
 import socket
 
-from apiCommands import *
+from api.apiCommands import *
 
 
 class AppAPI:
