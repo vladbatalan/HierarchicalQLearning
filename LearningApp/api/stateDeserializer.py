@@ -76,6 +76,21 @@ class StaticLevelState:
         ret_str += "Extra states: " + str(self.extra_states) + "\n"
         return ret_str
 
+    @property
+    def lever_positions(self):
+        change_positions = []
+        if "Lever" in self.positions:
+            change_positions = change_positions + self.positions["Lever"]
+        return change_positions
+
+    @property
+    def time_machine_position(self):
+        return self.positions["TimeMachine"][0]
+
+    @property
+    def game_objective_position(self):
+        return self.positions["Objective"][0]
+
 
 class CustomDeserializer:
 
