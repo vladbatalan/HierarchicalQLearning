@@ -39,6 +39,9 @@ class DynamicLevelState:
             return self.level_states['Lost']
         return None
 
+    def is_done(self):
+        return self.lost or self.complete
+
     def basic_state_form(self) -> []:
         obj_states = []
 

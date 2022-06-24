@@ -56,7 +56,7 @@ class QLearningUnit:
         self.env.start_env(host, port, args)
         self.static_state = self.env.static_state
 
-    def choose_action(self, state, expl_limit):
+    def _choose_action(self, state, expl_limit):
         exploration = np.random.rand()
         if exploration < expl_limit:
             # Explore: choose a random action
@@ -97,7 +97,7 @@ class QLearningUnit:
                     self.Q[basic_state_form] = np.zeros(len(self.env.action_space))
 
                 # Select the next action
-                action_index, action = self.choose_action(basic_state_form, expl_limit)
+                action_index, action = self._choose_action(basic_state_form, expl_limit)
 
                 # Advance a step
                 next_state, reward, done = self.env.step(action, time_delay=time_delay)
@@ -152,7 +152,7 @@ class QLearningUnit:
                 raise Exception('An unexpected state occured! State:', basic_state_form)
 
             # Take the best action
-            action_index, action = self.choose_action(basic_state_form, 0)
+            action_index, action = self._choose_action(basic_state_form, 0)
 
             next_state, reward, done = self.env.step(action, time_delay=time_delay)
             basic_next_state_form = str(next_state.basic_state_form())

@@ -32,7 +32,7 @@ class Node(abc.ABC):
     def is_terminal(self, state: DynamicLevelState) -> bool:
         if self.is_primitive():
             return True
-        return state.lost or state.complete
+        return state.is_done()
 
     def get_action_list(self) -> []:
         return self.children
@@ -94,7 +94,7 @@ class TravelNode(Node):
 
         # TODO: Include a max-step parameter for destinations that cannot be accessed
 
-        return state.lost or state.complete
+        return state.is_done()
 
     def clone(self):
         return TravelNode(self.name, self.destination, self.children, self.alpha)
