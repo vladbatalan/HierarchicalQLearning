@@ -3,6 +3,7 @@ import numpy as np
 from api.env.customenv import CustomEnv
 from api.stateDeserializer import DynamicLevelState
 from learn.maxq_tree.tree_builder import TimeBenderTreeBuilder
+from learn.qLearningUnit import plot_results
 
 
 class MaxQLearningUnit0:
@@ -35,14 +36,18 @@ class MaxQLearningUnit0:
             state = self.env.reset()
 
             new_state, time_passed, reward_sum = self._maxq_0_update(self.tree.root_node, state, gamma, max_steps,
-                                                                     time_delay)
+                                                                     time_delay, expl_limit)
             rs[episode] = reward_sum
+            expl_limit -= expl_decay
 
-    def _maxq_0_update(self, node, state, gamma, max_steps, time_delay) -> (DynamicLevelState, int, float):
+        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1)
+
+    def _maxq_0_update(self, node, state, gamma, max_steps, time_delay, expl_limit) -> (DynamicLevelState, int, float):
         if node.is_primitive():
 
             # Take a step using the primitive action of this node
-            new_state, reward, done = self.env.step(node.primitive_action, time_delay=time_delay)
+            new_state, reward, done = self.env.step(node.primitive_action.name,
+                                                    time_delay=time_delay)
 
             # Update V of the node
             node.update_V(state, reward)
@@ -54,15 +59,15 @@ class MaxQLearningUnit0:
             actions_done = 0
 
             while not node.is_terminal(state):
-                # TODO: Choose next action based on epsilon
-                next_node = None
+                next_node = node.choose_action(state, expl_limit)
 
                 # Get to bottom of tree recursively
-                new_state, no_actions, reward = self._maxq_0_update(next_node, state, gamma, time_delay)
+                new_state, no_actions, reward = self._maxq_0_update(next_node, state, gamma, max_steps, time_delay,
+                                                                    expl_limit)
                 cumulative_reward += reward
 
                 # Update the C value of the node
-                node.update_C(state, new_state, next_node.name, gamma, no_actions)
+                node.update_C(state, new_state, next_node, gamma, no_actions)
 
                 # Update the number of total actions and state
                 actions_done += no_actions
@@ -73,3 +78,6 @@ class MaxQLearningUnit0:
                     break
 
             return state, actions_done, cumulative_reward
+
+    def close_env(self):
+        self.env.close_env()

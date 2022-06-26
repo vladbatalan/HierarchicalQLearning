@@ -51,7 +51,7 @@ class CustomEnv:
     def _next_observation(self) -> DynamicLevelState:
         return CustomDeserializer.get_dynamic_level_state(self.api.exec_command(RequestDynamicStateCommand()))
 
-    def step(self, action, frames_per_step=4, time_delay=0) -> (DynamicLevelState, float, bool):
+    def step(self, action: HyperActionsEnum, frames_per_step=4, time_delay=0) -> (DynamicLevelState, float, bool):
 
         self._take_action(action)
 
@@ -71,6 +71,9 @@ class CustomEnv:
 
         return observation, reward, done
 
+    def get_state(self):
+        return self._next_observation()
+
     def reset(self):
         self.api.exec_command(RestartGameCommand())
         self.api.exec_command(StepFrameCommand())
@@ -81,4 +84,3 @@ class CustomEnv:
 
     def close_env(self):
         self.api.stop_main_loop()
-

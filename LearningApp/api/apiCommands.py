@@ -95,7 +95,7 @@ class RequestStaticStateCommand(SendCommand):
 
 class PlayerActionCommand(SendCommand):
     def __init__(self, player_comm):
-        super().__init__("Player command: " + player_comm, False)
+        super().__init__("Player command: " + str(player_comm.name), False)
 
     # def manage_received(self, received):
     #     print('From Player command:', received)

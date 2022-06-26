@@ -1,5 +1,6 @@
 from api.apiCommands import HyperActionsEnum
 from api.env.customenv import CustomEnv
+from learn.maxQLearningUnit import MaxQLearningUnit0
 from learn.maxq_tree.node import *
 from learn.maxq_tree.tree_builder import TimeBenderTreeBuilder
 from tests import tests
@@ -64,29 +65,20 @@ HOST = "127.0.0.1"
 PORT = 4303
 
 if __name__ == '__main__':
-    # created_tree = create_manual_tree()
-    # print("Manually created tree: ")
-    # print_maxQ_tree(created_tree)
+
+    max_q_alg = MaxQLearningUnit0()
 
     # Create environment
-    game_env = CustomEnv()
     config_data = {
-            "-lvl": "SimpleLevel",
-            "-g": "false",
-            "-ctrl": "external",
-            "-manual-step": "true",
-            "-reward": "PromoteAllStatesActive"
-        }
+        "-lvl": "Level0",
+        "-g": "false",
+        "-ctrl": "external",
+        "-manual-step": "true",
+        "-reward": "PromoteAllStatesActive"
+    }
 
-    # Extract the static state of level
-    game_env.start_env(HOST, PORT, config_data)
-    game_static_state = game_env.static_state
+    max_q_alg.init_environment(config_data, HOST, PORT)
 
-    # Build tree based on state
-    game_tree = TimeBenderTreeBuilder.build_tree(game_static_state)
-    print()
-    print("Generated tree from level: ")
-    print_maxQ_tree(game_tree)
+    max_q_alg.train(num_episodes=100, max_steps=500)
 
-    game_env.close_env()
-
+    max_q_alg.close_env()

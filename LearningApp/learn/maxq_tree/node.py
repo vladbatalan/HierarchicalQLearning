@@ -1,5 +1,6 @@
 import abc
 import math
+from collections import defaultdict
 
 import numpy as np
 
@@ -12,10 +13,12 @@ class Node(abc.ABC):
         self.name = name
         self.children = children
 
+        self.C = None
+
         if self.children is not None:
             self.children = sorted(self.children, key=lambda child: child.name)
+            self.C = {}
 
-        self.C = {}
         self.V = {}
 
         self.alpha = alpha
@@ -39,7 +42,10 @@ class Node(abc.ABC):
 
     def reset_node(self):
         self.alpha = self._init_alpha
-        self.C = {}
+
+        if not self.is_primitive():
+            self.C = {}
+
         self.V = {}
 
     def get_child_by_name(self, name):
@@ -51,23 +57,54 @@ class Node(abc.ABC):
                 return child
         return None
 
+    def choose_action(self, state: DynamicLevelState, expl_limit):
+        state_form = str(state.basic_state_form())
+
+        probability = np.random.rand()
+
+        if probability < expl_limit:
+            # Choose a random next node
+            return self.children[np.random.randint(0, len(self.children))]
+
+        else:
+            best_V = None
+            action_index = None
+            # Choose the best action
+            for i, node in enumerate(self.children):
+                if state_form not in node.V.keys():
+                    node.V[state_form] = 0
+
+                if best_V is None:
+                    best_V = node.V[state_form] + node.C[state_form][i]
+                    action_index = i
+                else:
+                    temp = node.V[state_form] + node.C[state_form][i]
+                    if best_V < temp:
+                        best_V = temp
+                        action_index = i
+
+            return self.children[action_index]
+
     # t is the parameter of time
     # Action represents the name of the action
     def update_C(self, current_state: DynamicLevelState, new_state: DynamicLevelState, action, gamma=0.95, t=0):
-        crr_state = current_state.basic_state_form()
-        nw_state = new_state.basic_state_form()
+        if self.is_primitive():
+            raise Exception("Primitive node has no C table.")
+
+        crr_state = str(current_state.basic_state_form())
+        nw_state = str(new_state.basic_state_form())
 
         # The index of the action will be the first child with name
-        action_list = self.get_action_list()
-        action_index = next(i for i, v in enumerate(action_list) if v.name == action)
+        action_list = self.children
+        action_index = next(i for i, v in enumerate(action_list) if v.name == action.name)
 
-        if crr_state not in self.C:
+        if crr_state not in self.C.keys():
             self.C[crr_state] = np.zeros(len(action_list))
 
-        if nw_state not in self.V:
+        if nw_state not in self.V.keys():
             self.V[nw_state] = 0
 
-        self.C[crr_state][action_index] = (1 - self.alpha) * self.C[crr_state][action_index] + self.alpha * (
+        self.C.get(crr_state)[action_index] = (1 - self.alpha) * self.C.get(crr_state)[action_index] + self.alpha * (
                 gamma ** t) * self.V[nw_state]
 
     def update_V(self, crr_state: DynamicLevelState, reward):

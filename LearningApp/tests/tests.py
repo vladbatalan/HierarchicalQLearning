@@ -221,6 +221,6 @@ class MaxQTreeShould:
         game_tree = TimeBenderTreeBuilder.build_tree(game_static_state)
         print()
         print("Generated tree from level: ")
-        print_maxQ_tree(game_tree)
+        game_tree.print()
 
         game_env.close_env()
