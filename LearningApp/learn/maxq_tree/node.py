@@ -30,12 +30,7 @@ class Node(abc.ABC):
         self.children = list(sorted(children, key=lambda child: child.name))
 
     def is_primitive(self) -> bool:
-        return self.primitive_action is not None
-
-    def is_terminal(self, state: DynamicLevelState) -> bool:
-        if self.is_primitive():
-            return True
-        return state.is_done()
+        return self.primitive_action is not None or self.children is None
 
     def get_action_list(self) -> []:
         return self.children
@@ -57,6 +52,9 @@ class Node(abc.ABC):
                 return child
         return None
 
+    def is_repetitive(self) -> bool:
+        return False
+
     def choose_action(self, state: DynamicLevelState, expl_limit):
         state_form = str(state.basic_state_form())
 
@@ -74,13 +72,29 @@ class Node(abc.ABC):
                 if state_form not in node.V.keys():
                     node.V[state_form] = 0
 
+                temp_value = node.V[state_form]
+
+                if not node.is_primitive():
+                    if state_form not in node.C.keys():
+                        self.C[state_form] = np.zeros(len(node.children))
+
+                    try:
+                        temp_value += self.C[state_form][i]
+                    except Exception as e:
+                        print("ERROR")
+                        print("\tInterating in children of:", self.name, "we found", node.name)
+                        print("\tChildren of node", node.name, ":", [c.name for c in node.children])
+                        print("\tSize of C:", len(node.C[state_form]))
+                        print("\tGiven i position of action:", i)
+                        print("\tChildren of father:", [c.name for c in self.children])
+                        raise e
+
                 if best_V is None:
-                    best_V = node.V[state_form] + node.C[state_form][i]
+                    best_V = temp_value
                     action_index = i
                 else:
-                    temp = node.V[state_form] + node.C[state_form][i]
-                    if best_V < temp:
-                        best_V = temp
+                    if best_V < temp_value:
+                        best_V = temp_value
                         action_index = i
 
             return self.children[action_index]
@@ -119,22 +133,43 @@ class Node(abc.ABC):
 
 class TravelNode(Node):
     def __init__(self, name, dest: (int, int), children=None, alpha=0.5):
-        super().__init__(name, children, None, alpha)
+        super(TravelNode, self).__init__(name, children, None, alpha)
 
         self.destination = dest
 
-    # Terminal condition occurs when the destination is achieved
-    def is_terminal(self, state: DynamicLevelState) -> bool:
-        if math.floor(state.player_position[0]) == self.destination[0]:
-            if math.floor(state.player_position[1]) == self.destination[1]:
-                return True
-
-        # TODO: Include a max-step parameter for destinations that cannot be accessed
-
-        return state.is_done()
-
     def clone(self):
         return TravelNode(self.name, self.destination, self.children, self.alpha)
+
+    def reached_destination(self, state: DynamicLevelState) -> bool:
+        rounded_position = (math.floor(state.player_position[0]), math.floor(state.player_position[1]))
+
+        if rounded_position == self.destination:
+            return True
+
+        return False
+
+
+class RepetitiveNode(Node):
+    def __init__(self, name, repetitions, children=None, alpha=0.5):
+        super(RepetitiveNode, self).__init__(name, children, None, alpha)
+
+        self.total_repetitions = repetitions
+        self._repetition_counter = 0
+
+    def clone(self):
+        return RepetitiveNode(self.name, self.total_repetitions, children=None, alpha=0.5)
+
+    def reset_repetitions(self):
+        self._repetition_counter = 0
+
+    def increase_repetition(self):
+        self._repetition_counter += 1
+
+    def is_terminal(self):
+        return self.total_repetitions < self._repetition_counter
+
+    def is_repetitive(self) -> bool:
+        return True
 
 
 def print_maxQ_tree(root_node: Node, ident=0, delim="   |"):

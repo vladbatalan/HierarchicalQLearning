@@ -296,7 +296,7 @@ public abstract class Level {
                 .setLevelRunning(isLevelRunning)
                 .setFrameNumber(getFrameNumber())
                 .setStillObjectsState()
-                .setPlayerTilePosition(GetPlayer().getPosition())
+                .setPlayerTilePosition(GetPlayer().getPosition(), 4)
                 .setLevelComplete(levelComplete)
                 .setLevelLost(levelLost)
                 .build();

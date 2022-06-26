@@ -1,20 +1,18 @@
 from api.apiCommands import HyperActionsEnum
-from api.env.customenv import CustomEnv
-from learn.maxQLearningUnit import MaxQLearningUnit0
 from learn.maxq_tree.node import *
-from learn.maxq_tree.tree_builder import TimeBenderTreeBuilder
-from tests import tests
+from tests.flat_q_learning_should import FlatQLearningShould
+from tests.max_q_should import MaxQTreeShould
 
 
 def q_learn_train(train_path):
-    tests.FlatQLearningShould.train_level(level_name="Level0", train_file_path=train_path,
-                                          reward_type="PromoteAllStatesActive", max_steps=400, alpha=0.5,
+    FlatQLearningShould.train_level(level_name="OnlyObjective", train_file_path=train_path,
+                                          reward_type="OptimalReward", max_steps=100, alpha=0.5,
                                           gamma=1, num_episodes=100, graphics="false")
 
 
-def q_learn_perform(model_path):
-    tests.FlatQLearningShould.perform_with_model(level_name="Level0", max_steps=400,
-                                                 model_file_path=model_path, gamma=1)
+def q_learn_perform(model_path, gamma=1.0):
+    FlatQLearningShould.perform_with_model(level_name="LeverWithObjective", max_steps=100,
+                                                 model_file_path=model_path, gamma=gamma)
 
 
 def create_manual_tree() -> Node:
@@ -65,20 +63,18 @@ HOST = "127.0.0.1"
 PORT = 4303
 
 if __name__ == '__main__':
+    # FlatQLearningShould.train_level(level_name="OnlyObjective",
+    #                                 train_file_path="models/only_objective/q_flat_01.txt",
+    #                                 reward_type="OptimalReward",
+    #                                 max_steps=100, num_episodes=10000,
+    #                                 alpha=0.1, gamma=0.99999995, graphics="false")
+    #
+    # FlatQLearningShould.train_level(level_name="LeverWithObjective",
+    #                                 train_file_path="models/lever_and_objective/q_flat_01.txt",
+    #                                 reward_type="OptimalReward",
+    #                                 max_steps=100, num_episodes=10000,
+    #                                 alpha=0.1, gamma=0.99999995, graphics="false")
+    # q_learn_perform("models/only_objective/q_flat_01.txt", 0.99999995)
+    # q_learn_perform("models/lever_and_objective/q_flat_01.txt", 0.99999995)
 
-    max_q_alg = MaxQLearningUnit0()
-
-    # Create environment
-    config_data = {
-        "-lvl": "Level0",
-        "-g": "false",
-        "-ctrl": "external",
-        "-manual-step": "true",
-        "-reward": "PromoteAllStatesActive"
-    }
-
-    max_q_alg.init_environment(config_data, HOST, PORT)
-
-    max_q_alg.train(num_episodes=100, max_steps=500)
-
-    max_q_alg.close_env()
+    MaxQTreeShould.train("OnlyObjective", alpha=0.5, gamma=0.99999995, num_episodes=1000, max_steps=100)

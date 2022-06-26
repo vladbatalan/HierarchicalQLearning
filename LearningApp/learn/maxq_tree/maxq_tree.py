@@ -1,7 +1,9 @@
-
 class MaxQTree:
-    def __init__(self, root_node):
+    def __init__(self, root_node, is_terminal: (lambda node, state, done: bool),
+                 is_composed_terminal: (lambda parent, action: bool)):
         self.root_node = root_node
+        self.is_terminal = is_terminal
+        self.is_composed_terminal = is_composed_terminal
 
     def reset_tree(self, alpha=None):
         self._reset_rec(self.root_node, alpha)
@@ -31,4 +33,3 @@ class MaxQTree:
 
         else:
             print("[ action =", root_node.primitive_action.name, "]")
-

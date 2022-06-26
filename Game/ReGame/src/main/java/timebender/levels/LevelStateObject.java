@@ -64,13 +64,20 @@ public class LevelStateObject {
         }
 
         // Set for dynamic parts of a level
-        public StateBuilder setPlayerTilePosition(PointVector position) {
+        public StateBuilder setPlayerTilePosition(PointVector position, int divisions) {
             PointVector indexedPosition = MapUtils.getTileIndexedCoordinates(position);
 
-            if(position.getX() - (indexedPosition.getX() * TILE_WIDTH) > TILE_WIDTH/2)
-                indexedPosition.setX((float) (indexedPosition.getX() + 0.5));
-            if(position.getY() - (indexedPosition.getY() * TILE_HEIGHT) > TILE_HEIGHT/2)
-                indexedPosition.setY((float) (indexedPosition.getY() + 0.5));
+            float diffX = position.getX() - (indexedPosition.getX() * TILE_WIDTH);
+            float diffY = position.getY() - (indexedPosition.getY() * TILE_HEIGHT);
+
+            float divisionSizeX = (float)(TILE_WIDTH)/divisions;
+            float divisionSizeY = (float)(TILE_HEIGHT)/divisions;
+
+            float addX = (float) (divisionSizeX * Math.floor(diffX/divisionSizeX)/(float)TILE_WIDTH);
+            float addY = (float) (divisionSizeY * Math.floor(diffY/divisionSizeY)/(float)TILE_HEIGHT);
+
+            indexedPosition.setX(indexedPosition.getX() + addX);
+            indexedPosition.setY(indexedPosition.getY() + addY);
 
             levelStateObserver.playerTilePosition = indexedPosition;
 

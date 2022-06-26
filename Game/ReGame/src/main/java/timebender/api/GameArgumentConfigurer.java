@@ -115,8 +115,6 @@ public class GameArgumentConfigurer {
             return new OnlyWinLoseReward();
 
         switch (rewardType) {
-            case "OnlyWinLose":
-                return new OnlyWinLoseReward();
             case "DistanceToTarget":
                 return new DistanceToActiveTargetReward();
             case "PunishIllegalActions":
@@ -125,6 +123,8 @@ public class GameArgumentConfigurer {
                 return new PunishIllegalActionsAndDistanceReward();
             case "PromoteAllStatesActive":
                 return new PromoteAllStatesActiveReward();
+            case "OptimalReward":
+                return new OptimalReward();
             default:
                 return new OnlyWinLoseReward();
         }

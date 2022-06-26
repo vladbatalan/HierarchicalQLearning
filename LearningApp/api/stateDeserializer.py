@@ -49,7 +49,11 @@ class DynamicLevelState:
             for active_state in self.still_states[obj]:
                 obj_states.append(active_state)
 
-        return np.array([self.player_position, obj_states]).flatten().tolist()
+        list_to_return = [self.player_position[0], self.player_position[1]]
+        for state in obj_states:
+            list_to_return.append(state)
+
+        return list_to_return
 
     def __str__(self):
         return "" + \

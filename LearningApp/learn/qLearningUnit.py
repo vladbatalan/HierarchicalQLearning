@@ -3,46 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from api.env.customenv import CustomEnv
-
-
-def plot_results(rs, alpha, gamma, nr_cum=50):
-    number_of_episodes = len(rs)
-
-    # Plot reward vs episodes
-    # Sliding window average
-    r_cumsum = np.cumsum(np.insert(rs, 0, 0))
-    r_cumsum = (r_cumsum[nr_cum:] - r_cumsum[:-nr_cum]) / nr_cum
-
-    # Plot
-    plt.title('Points over episodes (alpha=' + str(alpha) + ', gamma=' + str(gamma) + ')')
-    plt.ylabel('Points')
-    plt.xlabel('Episodes')
-    plt.plot(r_cumsum)
-    plt.show()
-
-    avg_reward = sum(rs) / len(rs)
-    print('Average reward per episode:', avg_reward)
-
-    # Print number of times the goal was reached
-    n = number_of_episodes // 10
-    num_gs = np.zeros(10)
-    labels = []
-
-    for i in range(10):
-        num_gs[i] = np.sum(rs[i * n:(i + 1) * n] > 0)
-        labels.append(str([i * n, (i + 1) * n]))
-
-    x = np.arange(len(labels))
-    fig, ax = plt.subplots()
-    ax.set_ylabel('Win count')
-    ax.set_title('Times when goal was reached (' + str(n) + ' per sample)')
-    ax.set_xticks(x, labels)
-    rects = ax.bar(x, num_gs)
-    ax.bar_label(rects, padding=5)
-    fig.tight_layout()
-    plt.show()
-
-    print("Rewards: {0}".format(num_gs))
+from learn.util.utils import plot_results
 
 
 class QLearningUnit:
