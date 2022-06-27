@@ -1,18 +1,19 @@
 from api.apiCommands import HyperActionsEnum
 from learn.maxq_tree.node import *
+from tests.api_should import ApiShould
 from tests.flat_q_learning_should import FlatQLearningShould
 from tests.max_q_should import MaxQTreeShould
 
 
 def q_learn_train(train_path):
     FlatQLearningShould.train_level(level_name="OnlyObjective", train_file_path=train_path,
-                                          reward_type="OptimalReward", max_steps=100, alpha=0.5,
-                                          gamma=1, num_episodes=100, graphics="false")
+                                    reward_type="OptimalReward", max_steps=100, alpha=0.5,
+                                    gamma=1, num_episodes=100, graphics="false")
 
 
 def q_learn_perform(model_path, gamma=1.0):
     FlatQLearningShould.perform_with_model(level_name="LeverWithObjective", max_steps=100,
-                                                 model_file_path=model_path, gamma=gamma)
+                                           model_file_path=model_path, gamma=gamma)
 
 
 def create_manual_tree() -> Node:
@@ -77,4 +78,5 @@ if __name__ == '__main__':
     # q_learn_perform("models/only_objective/q_flat_01.txt", 0.99999995)
     # q_learn_perform("models/lever_and_objective/q_flat_01.txt", 0.99999995)
 
-    MaxQTreeShould.train("OnlyObjective", alpha=0.5, gamma=0.99999995, num_episodes=1000, max_steps=100)
+    MaxQTreeShould.train(model_path="models/only_objective/max_q_01.txt", level_name="OnlyObjective", alpha=0.5,
+                         gamma=0.99999995, num_episodes=10000, max_steps=100)

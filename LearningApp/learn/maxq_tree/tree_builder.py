@@ -13,11 +13,12 @@ class TimeBenderTreeBuilder:
                   Node("JumpPressed", primitive_action=HyperActionsEnum.JUMP_PRESSED)]
 
     @staticmethod
-    def _clone_move_nodes(alpha=0.5):
+    def _clone_move_nodes(alpha=0.5, name_offset=""):
         move_nodes = []
         for move_node in TimeBenderTreeBuilder.MOVE_NODES:
             cloned = move_node.clone()
             cloned.alpha = alpha
+            cloned.name += name_offset
             move_nodes.append(cloned)
         return move_nodes
 
@@ -40,7 +41,10 @@ class TimeBenderTreeBuilder:
         nav_to_access = []
         for access_point in static_state.lever_positions:
             travel_node = TravelNode("NavTo" + str(access_point), dest=access_point, alpha=alpha)
-            travel_node.set_children(TimeBenderTreeBuilder._clone_move_nodes(alpha))
+            children = TimeBenderTreeBuilder._clone_move_nodes(alpha, str(access_point))
+            for child in children:
+                child.name = child.name + str(access_point)
+            travel_node.set_children(children)
             nav_to_access.append(travel_node)
 
         max_time_travel = Node("MaxTimeTravel", alpha=alpha)
@@ -53,7 +57,7 @@ class TimeBenderTreeBuilder:
         teleport_in_time = Node("SpaceTeleport", primitive_action=HyperActionsEnum.SPACE_RELEASED, alpha=alpha)
         travel_dest = static_state.time_machine_position
         nav_to_time_machine = TravelNode("NavTo" + str(travel_dest), dest=travel_dest, alpha=alpha)
-        nav_to_time_machine.set_children(TimeBenderTreeBuilder._clone_move_nodes(alpha))
+        nav_to_time_machine.set_children(TimeBenderTreeBuilder._clone_move_nodes(alpha, str(travel_dest)))
 
         max_time_travel.set_children([teleport_in_time, nav_to_time_machine])
 
@@ -61,7 +65,7 @@ class TimeBenderTreeBuilder:
         complete_game = Node("SpaceComplete", primitive_action=HyperActionsEnum.SPACE_RELEASED, alpha=alpha)
         objective_dest = static_state.game_objective_position
         nav_to_objective = TravelNode("NavTo" + str(objective_dest), dest=objective_dest, alpha=alpha)
-        nav_to_objective.set_children(TimeBenderTreeBuilder._clone_move_nodes(alpha))
+        nav_to_objective.set_children(TimeBenderTreeBuilder._clone_move_nodes(alpha, str(objective_dest)))
 
         max_goal.set_children([complete_game, nav_to_objective])
 

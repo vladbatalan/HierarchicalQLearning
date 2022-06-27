@@ -2,8 +2,25 @@ class MaxQTree:
     def __init__(self, root_node, is_terminal: (lambda node, state, done: bool),
                  is_composed_terminal: (lambda parent, action: bool)):
         self.root_node = root_node
+        self.all_nodes = self._get_node_list_rec(self.root_node)
         self.is_terminal = is_terminal
         self.is_composed_terminal = is_composed_terminal
+
+    def get_node_by_name(self, name):
+        for node in self.all_nodes:
+            if node.name == name:
+                return node
+        return None
+
+    def _get_node_list_rec(self, node) -> []:
+        if node.is_primitive():
+            return [node]
+
+        arr = [node]
+        for child in node.children:
+            arr += self._get_node_list_rec(child)
+
+        return arr
 
     def reset_tree(self, alpha=None):
         self._reset_rec(self.root_node, alpha)

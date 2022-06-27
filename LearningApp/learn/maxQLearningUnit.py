@@ -99,6 +99,9 @@ class MaxQLearningUnit0:
                                                                      expl_limit)
                 cumulative_reward += reward
 
+                # Update the V value of the node
+                node.update_V(state, reward)
+
                 # Update the C value of the node
                 node.update_C(state, new_state, next_node, gamma, no_actions)
 
@@ -113,7 +116,79 @@ class MaxQLearningUnit0:
                 terminated = terminated or self.tree.is_composed_terminal(node, next_node)
                 terminated = terminated or actions_done > max_steps
 
+            if node.name[len("NavTo"):] == "NavTo":
+                if np.floor(state.player_position[0]) == node.destination[0] and \
+                        np.floor(state.player_position[1]) == node.destination[1]:
+                    print("Successful NavTo", str(node.destination), "Player is at:", state.player_position)
+
             return state, actions_done, cumulative_reward
+
+    def save_model(self, path):
+
+        f = open(path, 'w')
+
+        for node in self.tree.all_nodes:
+            f.write(node.name + '\n')
+
+            # Write C
+            if node.is_primitive():
+                f.write("0\n")
+            else:
+                f.write(str(len(node.C.keys())) + '\n')
+                for key in node.C.keys():
+                    f.write(key + ":" + str(node.C[key].tolist()) + '\n')
+
+            # Write V
+            f.write(str(len(node.V.keys())) + '\n')
+            for key in node.V.keys():
+                f.write(str(key) + ":" + str(node.V[key]) + '\n')
+
+        print('The model was save at:', path)
+        f.close()
+
+    def load_model(self, path):
+        self.tree.reset_tree()
+
+        f = open(path, 'r')
+
+        lines = [line for line in f.readlines() if len(line) > 0]
+
+        i = 0
+        while i < len(lines):
+
+            # Read the name of the node
+            node_name = lines[i]
+            node = self.tree.get_node_by_name(node_name)
+            i += 1
+
+            # Number of keys for C
+            c_len = int(lines[i])
+            i += 1
+
+            if c_len > 0:
+                node.C = {}
+
+            for line_offset in range(c_len):
+                line_split = lines[i + line_offset].split(':')
+
+                key = line_split[0]
+                node.C[key] = np.zeros(len(node.children))
+                values_as_str = line_split[1][1:-2].split(', ')
+
+                for i in range(len(values_as_str)):
+                    node.C[key][i] = float(values_as_str[i])
+            i += c_len
+
+            # Read number of V keys
+            v_len = int(lines[i])
+            i += 1
+            for line_offset in range(v_len):
+                line_split = lines[i + line_offset].split(':')
+
+                key = line_split[0]
+                node.V[key] = float(line_split[1])
+            i += v_len
+
 
     def close_env(self):
         self.env.close_env()

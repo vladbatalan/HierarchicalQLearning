@@ -14,7 +14,7 @@ import static timebender.gameobjects.handlers.GameObjectHandler.GetPlayer;
 public class LeverObjectiveLevel extends Level {
     public LeverObjectiveLevel() {
         super("Lever with Objective Level",
-                Objects.requireNonNull(MapBuilder.BuildFromXmlFile("/maps/only-objective.xml")));
+                Objects.requireNonNull(MapBuilder.BuildFromXmlFile("/maps/lever-objective.xml")));
     }
 
     @Override

@@ -75,14 +75,14 @@ class Node(abc.ABC):
                 temp_value = node.V[state_form]
 
                 if not node.is_primitive():
-                    if state_form not in node.C.keys():
-                        self.C[state_form] = np.zeros(len(node.children))
+                    if state_form not in self.C.keys():
+                        self.C[state_form] = np.zeros(len(self.children))
 
                     try:
                         temp_value += self.C[state_form][i]
                     except Exception as e:
                         print("ERROR")
-                        print("\tInterating in children of:", self.name, "we found", node.name)
+                        print("\tIterating in children of:", self.name, "we found", node.name)
                         print("\tChildren of node", node.name, ":", [c.name for c in node.children])
                         print("\tSize of C:", len(node.C[state_form]))
                         print("\tGiven i position of action:", i)
@@ -122,10 +122,12 @@ class Node(abc.ABC):
                 gamma ** t) * self.V[nw_state]
 
     def update_V(self, crr_state: DynamicLevelState, reward):
-        if crr_state not in self.V:
-            self.V[crr_state] = 0
+        state_form = str(crr_state.basic_state_form())
 
-        self.V[crr_state] = (1 - self.alpha) * self.V[crr_state] + self.alpha * reward
+        if state_form not in self.V:
+            self.V[state_form] = 0
+
+        self.V[state_form] = (1 - self.alpha) * self.V[state_form] + self.alpha * reward
 
     def clone(self):
         return Node(self.name, self.children, self.primitive_action, self.alpha)
@@ -141,9 +143,11 @@ class TravelNode(Node):
         return TravelNode(self.name, self.destination, self.children, self.alpha)
 
     def reached_destination(self, state: DynamicLevelState) -> bool:
+        # print("A reached_destination triggered for", self.name, "in state", state.basic_state_form())
         rounded_position = (math.floor(state.player_position[0]), math.floor(state.player_position[1]))
 
-        if rounded_position == self.destination:
+        if rounded_position[0] == self.destination[0] and rounded_position[1] == self.destination[1]:
+            print("Travel node", self.name, "has reached destination", self.destination)
             return True
 
         return False

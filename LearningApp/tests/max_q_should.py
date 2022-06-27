@@ -82,7 +82,7 @@ class MaxQTreeShould:
         game_env.close_env()
 
     @staticmethod
-    def train(level_name="Level0", alpha=0.5, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
+    def train(model_path, level_name="Level0", alpha=0.5, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
               expl_limit=1, logging=True):
         max_q_alg = MaxQLearningUnit0()
 
@@ -98,3 +98,7 @@ class MaxQTreeShould:
 
         max_q_alg.train(alpha, gamma, num_episodes, max_steps, time_delay,
                         expl_limit, logging)
+
+        max_q_alg.save_model(model_path)
+
+        max_q_alg.close_env()
