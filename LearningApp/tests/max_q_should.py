@@ -83,12 +83,12 @@ class MaxQTreeShould:
 
     @staticmethod
     def train(model_path, level_name="Level0", alpha=0.5, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
-              expl_limit=1, logging=True):
+              expl_limit=1, logging=True, graphics="false"):
         max_q_alg = MaxQLearningUnit0()
 
         config_data = {
             "-lvl": level_name,
-            "-g": "false",
+            "-g": graphics,
             "-ctrl": "external",
             "-manual-step": "true",
             "-reward": "OptimalReward"
@@ -100,5 +100,24 @@ class MaxQTreeShould:
                         expl_limit, logging)
 
         max_q_alg.save_model(model_path)
+
+        max_q_alg.close_env()
+
+    @staticmethod
+    def perform_on_level(model_path, level_name="Level0", gamma=0.95, max_steps=3000, time_delay=0):
+
+        max_q_alg = MaxQLearningUnit0()
+
+        config_data = {
+            "-lvl": level_name,
+            "-g": "true",
+            "-ctrl": "external",
+            "-manual-step": "true",
+            "-reward": "OptimalReward"
+        }
+
+        max_q_alg.init_environment(config_data, HOST, PORT)
+
+        max_q_alg.perform_with_model(model_path, max_steps, time_delay, gamma)
 
         max_q_alg.close_env()

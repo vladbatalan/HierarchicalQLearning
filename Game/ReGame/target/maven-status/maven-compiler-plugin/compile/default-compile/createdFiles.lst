@@ -40,7 +40,6 @@ timebender\map\tiles\types\HalfNormalBoxMiddle.class
 timebender\gameobjects\mobs\OldPlayerInstance.class
 timebender\levels\LevelBuilder.class
 timebender\map\tiles\types\AcidTile.class
-timebender\GameArgumentConfigurer.class
 timebender\gameobjects\stills\SwitchCommand.class
 timebender\input\MouseInput.class
 timebender\Main.class

@@ -77,7 +77,7 @@ public class LevelStateObject {
             float addY = (float) (divisionSizeY * Math.floor(diffY/divisionSizeY)/(float)TILE_HEIGHT);
 
             indexedPosition.setX(indexedPosition.getX() + addX);
-            indexedPosition.setY(indexedPosition.getY() + addY);
+            indexedPosition.setY(indexedPosition.getY() + addY + 1);
 
             levelStateObserver.playerTilePosition = indexedPosition;
 
