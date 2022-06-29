@@ -9,21 +9,22 @@ from learn.util.utils import plot_results
 
 class MaxQLearningUnit0:
 
-    def __init__(self):
+    def __init__(self, env_jar_path=None):
         self.static_state = None
+        self.env_jar_path = env_jar_path
         self.env = CustomEnv()
         self.tree = None
 
         self._action_chain = []
 
-    def init_environment(self, args, host, port):
-        self.env.start_env(host, port, args)
+    def init_environment(self, args, host, port, jar_path=None):
+        self.env.start_env(host, port, args, jar_path=jar_path)
         self.static_state = self.env.static_state
         self.tree = TimeBenderTreeBuilder.build_tree(self.static_state)
         self.tree.print()
 
     def train(self, alpha=0.5, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
-              expl_limit=1, logging=True):
+              expl_limit=1, logging=True, save_fig_path=None):
 
         # Reset the tree
         self.tree.reset_tree(alpha)
@@ -53,7 +54,8 @@ class MaxQLearningUnit0:
                 print('Explore:', str(expl_limit * 100) + '%')
                 print()
 
-        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1)
+        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1,
+                     path_with_starting_name=save_fig_path)
 
     def _evaluate(self, action: Node, state: DynamicLevelState):
         state_desc = str(state.basic_state_form())
@@ -223,10 +225,10 @@ class MaxQLearningUnit0:
         state_form = str(state.basic_state_form())
 
         if node.is_primitive():
-            if state_form not in node.V.keys():
-                node.V[state_form] = 0
+            if state_form not in node._V.keys():
+                node._V[state_form] = 0
 
-            return node.V[state], node.primitive_action.name
+            return node._V[state], node.primitive_action.name
         else:
             next_node = None
             values = (None, None)
@@ -262,9 +264,9 @@ class MaxQLearningUnit0:
                     f.write(key + ":" + str(node.C[key].tolist()) + '\n')
 
             # Write V
-            f.write(str(len(node.V.keys())) + '\n')
-            for key in node.V.keys():
-                f.write(str(key) + ":" + str(node.V[key]) + '\n')
+            f.write(str(len(node._V.keys())) + '\n')
+            for key in node._V.keys():
+                f.write(str(key) + ":" + str(node._V[key]) + '\n')
 
         print('The model was save at:', path)
         f.close()
@@ -317,7 +319,7 @@ class MaxQLearningUnit0:
                 line_split = next_line().split(':')
 
                 key = line_split[0]
-                node.V[key] = float(line_split[1])
+                node._V[key] = float(line_split[1])
 
         f.close()
 

@@ -9,6 +9,7 @@ import timebender.map.tiles.Tile;
 import timebender.map.utils.MapUtils;
 import timebender.physics.utils.PointVector;
 
+import javax.swing.plaf.nimbus.State;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class LevelStateObject {
      */
     private final HashMap<ObjectID, List<Boolean>> activeStates = new HashMap<>();
     private int objectsWithStates = 0;
+    private int numberOfOldInstances = 0;
 
     /**
      * Meta game information.
@@ -81,6 +83,11 @@ public class LevelStateObject {
 
             levelStateObserver.playerTilePosition = indexedPosition;
 
+            return this;
+        }
+
+        public StateBuilder setNumberIfOldInstances(int instances){
+            levelStateObserver.numberOfOldInstances = instances;
             return this;
         }
 
@@ -203,6 +210,7 @@ public class LevelStateObject {
         sb.append("<Lost>").append(levelLost).append("</Lost>");
         sb.append("<Frame>").append(frameNumber).append("</Frame>");
         sb.append("<Reward>").append(reward).append("</Reward>");
+        sb.append("<OldInstances>").append(numberOfOldInstances).append("</OldInstances>");
         sb.append("</LevelState>");
 
         // Append states of all Switchable

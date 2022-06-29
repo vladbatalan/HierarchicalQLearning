@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def plot_results(rs, alpha, gamma, nr_cum=50):
+def plot_results(rs, alpha, gamma, nr_cum=50, path_with_starting_name=None):
     number_of_episodes = len(rs)
 
     # Plot reward vs episodes
@@ -15,6 +15,8 @@ def plot_results(rs, alpha, gamma, nr_cum=50):
     plt.ylabel('Points')
     plt.xlabel('Episodes')
     plt.plot(r_cumulative_sum)
+    if path_with_starting_name is not None:
+        plt.savefig(path_with_starting_name + "_points.png")
     plt.show()
 
     avg_reward = sum(rs) / len(rs)
@@ -27,7 +29,7 @@ def plot_results(rs, alpha, gamma, nr_cum=50):
 
     for i in range(10):
         num_gs[i] = np.sum(rs[i * n:(i + 1) * n] > 0)
-        labels.append(str(int((i * n + (i + 1) * n)/2)))
+        labels.append(str(int((i * n + (i + 1) * n) / 2)))
 
     x = np.arange(len(labels))
     fig, ax = plt.subplots()
@@ -37,6 +39,10 @@ def plot_results(rs, alpha, gamma, nr_cum=50):
     rects = ax.bar(x, num_gs)
     ax.bar_label(rects, padding=5)
     fig.tight_layout()
+
+    if path_with_starting_name is not None:
+        plt.savefig(path_with_starting_name + "_win.png")
+
     plt.show()
 
     print("Rewards: {0}".format(num_gs))

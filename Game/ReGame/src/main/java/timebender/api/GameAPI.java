@@ -101,6 +101,9 @@ public class GameAPI {
                 }
             }
         }
+
+        Logger.Print("Client communication handle ended!");
+        communicationQueue.get(0).add("Disconnected");
     }
 
     public void startAPI(int port) {
@@ -132,7 +135,6 @@ public class GameAPI {
 
                 // Exit condition
                 if (".".equals(inputLine)) {
-                    out.println("good bye");
                     break;
                 }
 
@@ -154,7 +156,6 @@ public class GameAPI {
 
             // After finishing with the client stop server
             serverSocket.close();
-            gameThread.interrupt();
 
         } catch (IOException e) {
             e.printStackTrace();

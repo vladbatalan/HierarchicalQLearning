@@ -5,6 +5,7 @@ import timebender.gameobjects.ObjectID;
 import timebender.gameobjects.camera.GameCamera;
 import timebender.gameobjects.controllers.ControllerBuilder;
 import timebender.gameobjects.controllers.FixedController;
+import timebender.gameobjects.handlers.GameObjectHandler;
 import timebender.gameobjects.mobs.MobileObject;
 import timebender.gameobjects.mobs.OldPlayerInstance;
 import timebender.gameobjects.mobs.Player;
@@ -296,6 +297,7 @@ public abstract class Level {
                 .setLevelRunning(isLevelRunning)
                 .setFrameNumber(getFrameNumber())
                 .setStillObjectsState()
+                .setNumberIfOldInstances(GameObjectHandler.GetOldInstances().size())
                 .setPlayerTilePosition(GetPlayer().getPosition(), 4)
                 .setLevelComplete(levelComplete)
                 .setLevelLost(levelLost)

@@ -8,9 +8,9 @@ if __name__ == "__main__":
     # Total arguments
     argument_list = sys.argv[1:]
 
-    options = 'flsmhp'
+    options = 'f:l:s:m:h:p:'
 
-    long_options = ["file", "lvl", 'max-steps', 'gamma', 'host', 'port']
+    long_options = ["file=", "lvl=", 'max-steps=', 'gamma=', 'host=', 'port=']
 
     try:
         path = None
@@ -43,6 +43,15 @@ if __name__ == "__main__":
 
         if path is None:
             raise Exception("There must be a valid path")
+
+        print("Configs chosen:")
+        print("\thost:", host)
+        print("\tport:", port)
+        print("\tpath:", path)
+        print("\tlevel_name:", level_name)
+        print("\tmax_steps:", max_steps)
+        print("\tgamma:", gamma)
+        print()
 
         learning_unit = QLearningUnit()
 

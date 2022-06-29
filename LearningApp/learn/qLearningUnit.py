@@ -13,8 +13,8 @@ class QLearningUnit:
         self.static_state = None
         self.env = CustomEnv()
 
-    def init_environment(self, args, host, port):
-        self.env.start_env(host, port, args)
+    def init_environment(self, args, host, port, jar_path=None):
+        self.env.start_env(host, port, args, jar_path=jar_path)
         self.static_state = self.env.static_state
 
     def _choose_action(self, state, expl_limit):
@@ -31,7 +31,7 @@ class QLearningUnit:
         return action_index, action[len("HyperActionsEnum."):]
 
     def train(self, alpha=0.1, gamma=0.95, num_episodes=2000, max_steps=3000, time_delay=0,
-              expl_limit=1, logging=True):
+              expl_limit=1, logging=True, save_pictures_path=None):
 
         self.Q = {}
 
@@ -92,7 +92,8 @@ class QLearningUnit:
                 print('Explore:', str(expl_limit * 100) + '%')
                 print()
 
-        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1)
+        plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1,
+                     path_with_starting_name=save_pictures_path)
 
     def perform_with_model(self, model_path, max_steps=3000, time_delay=0, gamma=0.95):
 

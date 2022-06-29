@@ -85,9 +85,9 @@ class Node(abc.ABC):
 
                 v_of_child = 0
                 if node.is_primitive():
-                    if state_form not in node.V.keys():
-                        node.V[state_form] = 0
-                    v_of_child = node.V[state_form]
+                    if state_form not in node._V.keys():
+                        node._V[state_form] = 0
+                    v_of_child = node._V[state_form]
 
                 temp_value = v_of_child
 

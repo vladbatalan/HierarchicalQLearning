@@ -24,8 +24,9 @@ public class OptimalReward implements IRewardSystem {
             return 5000;
 
         // Limit old instance number
+        int instances = GameObjectHandler.GetOldInstances().size();
         if(GameObjectHandler.GetOldInstances().size() > 5){
-            return -10;
+            return -2 * (instances - 5);
         }
 
         // The SPACE_ACTION was initiated

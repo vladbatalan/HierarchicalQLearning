@@ -8,9 +8,9 @@ if __name__ == "__main__":
     # Total arguments
     argument_list = sys.argv[1:]
 
-    options = 'flgseamhp'
+    options = 'f:l:g:s:e:a:m:h:p:'
 
-    long_options = ["file", "lvl", "graphics", 'max-steps', 'episodes', 'alpha', 'gamma', 'host', 'port']
+    long_options = ["file=", "lvl=", "graphics=", 'max-steps=', 'episodes=', 'alpha=', 'gamma=', 'host=', 'port=']
 
     try:
         path = None
@@ -57,15 +57,16 @@ if __name__ == "__main__":
             raise Exception("There must be a valid path")
 
         print("Configs chosen:")
-        print("host:", host)
-        print("port:", port)
-        print("path:", path)
-        print("level_name:", level_name)
-        print("graphics_mode:", graphics_mode)
-        print("max_steps:", max_steps)
-        print("num_episodes:", num_episodes)
-        print("alpha:", alpha)
-        print("gamma:", gamma)
+        print("\thost:", host)
+        print("\tport:", port)
+        print("\tpath:", path)
+        print("\tlevel_name:", level_name)
+        print("\tgraphics_mode:", graphics_mode)
+        print("\tmax_steps:", max_steps)
+        print("\tnum_episodes:", num_episodes)
+        print("\talpha:", alpha)
+        print("\tgamma:", gamma)
+        print()
 
         learning_unit = QLearningUnit()
 
@@ -78,7 +79,8 @@ if __name__ == "__main__":
         }
 
         learning_unit.init_environment(config, host, port)
-        learning_unit.train(max_steps=max_steps, num_episodes=num_episodes, alpha=alpha, gamma=gamma)
+        learning_unit.train(max_steps=max_steps, num_episodes=num_episodes, alpha=alpha, gamma=gamma,
+                            save_pictures_path=path.split(".")[0])
         learning_unit.save_model(path)
         learning_unit.close_env()
 

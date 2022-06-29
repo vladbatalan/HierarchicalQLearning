@@ -1,18 +1,27 @@
+import subprocess
 import time
+from multiprocessing import Process
 
 from api.appApi import AppAPI
 from api.apiCommands import *
 from api.stateDeserializer import CustomDeserializer, DynamicLevelState
+from subprocess import PIPE, Popen
 
 
 class CustomEnv:
     def __init__(self):
         self.static_state = None
+        self.process = None
         self.action_space = [value for value in HyperActionsEnum.get_list()]
 
         self.api = AppAPI()
 
-    def start_env(self, host, port, config_options=None):
+    def start_env(self, host, port, config_options=None, jar_path=None):
+
+        # Try to exec env from jar
+        if jar_path is not None:
+            self.process = Process(target=subprocess.Popen, args=(['java', '-jar', jar_path, '-extern'],))
+            self.process.start()
 
         self.api.start_main_loop(host, port)
 
@@ -51,7 +60,7 @@ class CustomEnv:
     def _next_observation(self) -> DynamicLevelState:
         return CustomDeserializer.get_dynamic_level_state(self.api.exec_command(RequestDynamicStateCommand()))
 
-    def step(self, action: HyperActionsEnum, frames_per_step=4, time_delay=0) -> (DynamicLevelState, float, bool):
+    def step(self, action, frames_per_step=4, time_delay=0) -> (DynamicLevelState, float, bool):
 
         self._take_action(action)
 
@@ -84,3 +93,5 @@ class CustomEnv:
 
     def close_env(self):
         self.api.stop_main_loop()
+        if self.process is not None:
+            self.process.join()

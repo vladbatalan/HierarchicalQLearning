@@ -10,6 +10,12 @@ class DynamicLevelState:
         self.still_states = {}
 
     @property
+    def old_instances(self):
+        if 'OldInstances' in self.level_states.keys():
+            return self.level_states['OldInstances']
+        return None
+
+    @property
     def running(self):
         if 'Running' in self.level_states.keys():
             return self.level_states['Running']
@@ -39,6 +45,12 @@ class DynamicLevelState:
             return self.level_states['Lost']
         return None
 
+    @property
+    def objective_active(self):
+        if 'Objective' in self.still_states.keys():
+            return self.still_states['Objective']
+        return None
+
     def is_done(self):
         return self.lost or self.complete
 
@@ -49,7 +61,7 @@ class DynamicLevelState:
             for active_state in self.still_states[obj]:
                 obj_states.append(active_state)
 
-        list_to_return = [self.player_position[0], self.player_position[1]]
+        list_to_return = [self.player_position[0], self.player_position[1], self.old_instances]
         for state in obj_states:
             list_to_return.append(state)
 

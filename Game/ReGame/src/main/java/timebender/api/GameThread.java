@@ -1,6 +1,7 @@
 package timebender.api;
 
 import timebender.Game;
+import timebender.Logger;
 import timebender.input.ExternalInput;
 import timebender.physics.states.movecommands.MoveCommand;
 import timebender.physics.states.movecommands.MoveCommandType;
@@ -23,6 +24,13 @@ public class GameThread extends Thread {
         while (loopIsOn) {
 
             if (!communicationQueue.get(0).isEmpty() && (message = communicationQueue.get(0).poll()) != null) {
+
+                // Check message type
+                if ("Disconnected".equals(message)) {
+                    game.stopGame();
+                    loopIsOn = false;
+                    continue;
+                }
 
                 // Check message type
                 if ("RestartLevel".equals(message)) {
@@ -82,6 +90,7 @@ public class GameThread extends Thread {
                 }
             }
         }
+        Logger.Print("GameThread main loop closed!");
     }
 
     @Override
