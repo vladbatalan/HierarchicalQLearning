@@ -2,28 +2,36 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def plot_results(rs, alpha, gamma, nr_cum=50, path_with_starting_name=None):
+def plot_results(rs, alpha, gamma, nr_cum=50, path_with_starting_name=None, batch_number=None):
     number_of_episodes = len(rs)
 
     # Plot reward vs episodes
     # Sliding window average
     r_cumulative_sum = np.cumsum(np.insert(rs, 0, 0))
-    r_cumulative_sum = (r_cumulative_sum[nr_cum:] - r_cumulative_sum[:-nr_cum]) / nr_cum
+    r_cumulative_sum = (r_cumulative_sum[int(nr_cum):] - r_cumulative_sum[:-int(nr_cum)]) / nr_cum
+
+    title = 'Points over episodes (alpha=' + str(alpha) + ', gamma=' + str(gamma) + ')'
+    if batch_number is not None:
+        title = 'Points over episodes (alpha=' + str(alpha) + ', gamma=' + str(gamma) + ', batch=' + str(
+            batch_number) + ')'
 
     # Plot
-    plt.title('Points over episodes (alpha=' + str(alpha) + ', gamma=' + str(gamma) + ')')
+    plt.title(title)
     plt.ylabel('Points')
     plt.xlabel('Episodes')
     plt.plot(r_cumulative_sum)
     if path_with_starting_name is not None:
-        plt.savefig(path_with_starting_name + "_points.png")
+        if batch_number is None:
+            plt.savefig(path_with_starting_name + "_points.png")
+        else:
+            plt.savefig(path_with_starting_name + "_batch_" + str(batch_number) + "_points.png")
     plt.show()
 
     avg_reward = sum(rs) / len(rs)
     print('Average reward per episode:', avg_reward)
 
     # Print number of times the goal was reached
-    n = number_of_episodes // 10
+    n = number_of_episodes // 20
     num_gs = np.zeros(10)
     labels = []
 
@@ -41,7 +49,10 @@ def plot_results(rs, alpha, gamma, nr_cum=50, path_with_starting_name=None):
     fig.tight_layout()
 
     if path_with_starting_name is not None:
-        plt.savefig(path_with_starting_name + "_win.png")
+        if batch_number is None:
+            plt.savefig(path_with_starting_name + "_win.png")
+        else:
+            plt.savefig(path_with_starting_name + "_batch_" + str(batch_number) + "_win.png")
 
     plt.show()
 

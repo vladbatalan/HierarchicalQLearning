@@ -162,7 +162,6 @@ public class LevelStateObject {
                                         new PointVector(0, stillObject.getBody().getBodyHeight() - TILE_HEIGHT )
                                 )
                         );
-                tilePosition.setY(tilePosition.getY() - 2);
 
                 if (stillObject instanceof ISwitchable)
                     levelStateObserver.objectsWithStates ++;
