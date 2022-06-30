@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
         max_q_agent.init_environment(config_data, host, port)
         max_q_agent.train(alpha=alpha, gamma=gamma, num_episodes=num_episodes, max_steps=max_steps,
-                          save_plots=path.split(".")[0], batches=True)
+                          save_plots=path.split(".")[0], batches=False)
         max_q_agent.save_model(path)
         max_q_agent.close_env()
 

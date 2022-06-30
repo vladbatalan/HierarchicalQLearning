@@ -5,7 +5,6 @@ from multiprocessing import Process
 from api.appApi import AppAPI
 from api.apiCommands import *
 from api.stateDeserializer import CustomDeserializer, DynamicLevelState
-from subprocess import PIPE, Popen
 
 
 class CustomEnv:

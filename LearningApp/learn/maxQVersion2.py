@@ -68,63 +68,6 @@ class MaxQAgent:
 
     def is_terminal(self, action, done, state: DynamicLevelState, last_action=-1):
         return self.tree.is_terminal(action, done, state, last_action)
-        # player_position = (int(state.player_position[0]), int(state.player_position[1]))
-
-        # print("Is terminal called from:", state.basic_state_form())
-        # print("\taction:", self.action_names[action])
-        # print("\tdone:", done)
-        # if last_action != -1:
-        #     print("\tlast action:", self.action_names[last_action])
-
-        # response = True
-        #
-        # # If game is over, return true
-        # if done:
-        #     response = True
-        #
-        # # If it is root, continue until game done
-        # elif action == self.root:
-        #     response = done
-        #
-        # # It is a navigation action
-        # elif self.nav_offset <= action < self.nav_offset + len(self.all_positions):
-        #     target_position = self.all_positions[action - self.nav_offset]
-        #     response = (player_position[0] == target_position[0] and player_position[1] == target_position[1])
-        #
-        # # Repeat _max_repeats times
-        # elif action == self.repetitive_stand:
-        #     if self._repetitive_counter >= self._max_repeats:
-        #         self._repetitive_counter = 0
-        #         response = True
-        #     else:
-        #         response = False
-        #
-        # # Action is complete only when it is at the right position and teleports in time
-        # elif action == self.max_time_travel:
-        #     is_positioned_correctly = (player_position[0] == self.time_machine_position[0] and
-        #                                player_position[1] == self.time_machine_position[1])
-        #
-        #     response = (is_positioned_correctly and last_action == self.space_for_teleport)
-        #
-        # # Action is completed only when goal was reached and space was pressed and goal is active
-        # elif action == self.max_goal:
-        #     is_positioned_correctly = (player_position[0] == self.goal_position[0] and
-        #                                player_position[1] == self.goal_position[1])
-        #
-        #     response = (is_positioned_correctly and last_action == self.space_for_goal and state.objective_active)
-        #
-        # # Action presumes that player went to Lever, kept it active for some moments and
-        # #   returned to time_machine and teleported
-        # elif action == self.max_access_point:
-        #     response = (last_action == self.max_time_travel)
-        #
-        # # Primitive actions and immediately
-        # elif self.is_primitive(action):
-        #     response = True
-        #
-        # # print("\tresponse:", response)
-        # # print()
-        # return response
 
     def get_estimate_reward(self, action, state: DynamicLevelState):
         state_str = str(state.basic_state_form())
@@ -212,7 +155,6 @@ class MaxQAgent:
             self._action_chain.append(self.tree.action_names[action])
             # print("Move", self.num_of_actions, ":", self._action_chain)
             return 1
-
 
     def max_q_0(self, action, state: DynamicLevelState):
         if self.done:

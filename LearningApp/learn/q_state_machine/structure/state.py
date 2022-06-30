@@ -10,17 +10,16 @@ from learn.q_state_machine.structure.epsilon_strategy import *
 
 
 class QState(abc.ABC):
-    def __init__(self):
-        self.children = None
+
+    @abc.abstractmethod
+    def train(self, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
         pass
 
     @abc.abstractmethod
-    def train(self, action, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
+    def perform(self, state: DynamicLevelState, env: CustomEnv) -> float:
         pass
 
-    @abc.abstractmethod
-    def perform(self, action, state: DynamicLevelState, env: CustomEnv) -> float:
-        pass
+    # TODO: Next state from the node
 
 
 class QTableState(QState, ABC):
@@ -69,7 +68,7 @@ class QTableState(QState, ABC):
         self._Q = {}
 
 
-class StateWithQForChildren(QTableState, ABC):
+class StateQChildren(QTableState, ABC):
 
     def __init__(self, children):
         super().__init__()
@@ -77,17 +76,19 @@ class StateWithQForChildren(QTableState, ABC):
         self.action_space_n = len(children)
         self.actions = range(self.action_space_n)
 
-    def train(self, action, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
+    def train(self, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
 
         # Reset parameters
         reward_sum = 0
         done = False
 
         while not done:
-            # Choose action to perform
-            next_action = self.choose_acton(state, eps_strategy.get_eps())
+            # Choose a child to perform
+            child_index = self.choose_acton(state, eps_strategy.get_eps())
+            child = self.children[child_index]
 
-            # Advance step
+            # Execute child
+            child.train(state, eps_strategy, env)
             next_state, env_reward, done = env.step(self.actions[next_action])
 
             # Sum of env_reward
@@ -107,12 +108,11 @@ class StateWithQForChildren(QTableState, ABC):
 
         return reward_sum
 
-    def perform(self, action, state: DynamicLevelState, env: CustomEnv) -> float:
+    def perform(self, state: DynamicLevelState, env: CustomEnv) -> float:
         pass
 
 
-
-class StateWithQForPrimitives(QState, ABC):
+class StateQPrimitives(QTableState, ABC):
 
     # Primitive actions is an array of actions (Example: navTo has all move actions ass primitive)
     # This node has only one next element, so there is only one child
@@ -123,13 +123,8 @@ class StateWithQForPrimitives(QState, ABC):
             primitive_actions = []
         self.actions = primitive_actions
         self.action_space_n = len(self.actions)
-        self._Q = {}
-        self.alpha = 0.1
-        self.gamma = 0.99
 
-
-
-    def perform(self, action, state: DynamicLevelState, env: CustomEnv) -> float:
+    def perform(self, state: DynamicLevelState, env: CustomEnv) -> float:
         done = False
         res_sum = 0
 
@@ -147,7 +142,7 @@ class StateWithQForPrimitives(QState, ABC):
 
         return res_sum
 
-    def train(self, action, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
+    def train(self, state: DynamicLevelState, eps_strategy: EpsilonStrategy, env: CustomEnv) -> float:
 
         # Reset parameters
         reward_sum = 0
@@ -178,9 +173,7 @@ class StateWithQForPrimitives(QState, ABC):
         return reward_sum
 
 
-
-
-class NavigateToPoint(StateWithQForPrimitives):
+class NavigateToPoint(StateQPrimitives):
 
     def __init__(self, child, destination):
         super().__init__(child)
@@ -211,20 +204,16 @@ class NavigateToPoint(StateWithQForPrimitives):
         return -0.1 * distance
 
 
-class RepetitiveAction(StateWithQForPrimitives):
+class RepetitiveAction(StateQPrimitives):
     def __init__(self, child, primitive_action, repeat_times):
         super().__init__(child)
-        self.primitive_actions = [primitive_action]
+        self.actions = [primitive_action]
         self.repeat_times = repeat_times
         self._counter = 0
         self.action_space_n = 1
 
     def terminated(self, state: DynamicLevelState) -> bool:
         return self._counter >= self.repeat_times
-
-    # Doesn't need pseudo reward
-    def pseudo_reward(self, state: DynamicLevelState) -> float:
-        return 0
 
     def perform(self, action, state: DynamicLevelState, env: CustomEnv) -> float:
         done = False
