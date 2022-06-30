@@ -1,14 +1,14 @@
 import numpy as np
 
-from api.apiCommands import HyperActionsEnum
 from api.env.customenv import CustomEnv
 from api.stateDeserializer import DynamicLevelState
-from learn.maxq_v2_tree.trees import NoLeverTree, AdvancedTree
+from learn.maxq_v2_tree.trees import *
 from learn.util.utils import plot_results
 
 
 class MaxQAgent:
     def __init__(self):
+        self._use_determined_tree = None
         self._C = None
         self._V = None
         self._repetitive_counter = None
@@ -34,9 +34,10 @@ class MaxQAgent:
         self.max_steps = 150
         self.current_reward = 0
 
-    def init_environment(self, args, host, port):
+    def init_environment(self, args, host, port, use_determined_tree=False):
         self.env.start_env(host, port, args)
         self.static_state = self.env.static_state
+        self._use_determined_tree = use_determined_tree
         self._build_max_q_graph()
 
     def _build_max_q_graph(self):
@@ -50,7 +51,10 @@ class MaxQAgent:
         if len(self.lever_positions) == 0:
             self.tree = NoLeverTree()
         else:
-            self.tree = AdvancedTree()
+            if not self._use_determined_tree:
+                self.tree = AdvancedTree()
+            else:
+                self.tree = AdvancedTreeDeterminedHighActions()
 
         self.tree.build_tree(self.static_state)
 
@@ -60,8 +64,8 @@ class MaxQAgent:
         #       self.C[action][state] = np.zeros(self.tree.action_space_size)
         self._C = np.array([{} for i in range(self.tree.action_space_size)])
 
-        # Create C_hat for MaxQQ alg
-        self._C_hat = np.array([{} for i in range(self.tree.action_space_size)])
+        # # Create C_hat for MaxQQ alg
+        # self._C_hat = np.array([{} for i in range(self.tree.action_space_size)])
 
     def is_primitive(self, action):
         return self.tree.is_primitive(action)
@@ -131,30 +135,29 @@ class MaxQAgent:
             # print("\t\tChosen action:", self.tree.action_names[possible_action_arr[max_arg]])
             return possible_action_arr[max_arg]
 
-    def max_q_q(self, action, state: DynamicLevelState):
-        if self.done:
-            return
-
-        self.done = False
-        state_str = str(state.basic_state_form())
-
-        # Action is primitive
-        if self.is_primitive(action):
-            # Step ahead in env
-            self.new_state, self.current_reward, self.done = self.env.step(self.tree.env_actions[action])
-
-            # Update the reward, sum and the action number and last action
-            self.r_sum += self.current_reward
-            self.num_of_actions += 1
-
-            # Get pseudo_reward
-            # Bellman equation for V
-            new_V = self.get_V(action, state_str) + self.alpha * (self.current_reward - self.get_V(action, state_str))
-            self.set_V_value(action, state_str, new_V)
-
-            self._action_chain.append(self.tree.action_names[action])
-            # print("Move", self.num_of_actions, ":", self._action_chain)
-            return 1
+    # def max_q_q(self, action, state: DynamicLevelState):
+    #     if self.done:
+    #         return
+    #
+    #     self.done = False
+    #     state_str = str(state.basic_state_form())
+    #
+    #     # Action is primitive
+    #     if self.is_primitive(action):
+    #         # Step ahead in env
+    #         self.new_state, self.current_reward, self.done = self.env.step(self.tree.env_actions[action])
+    #
+    #         # Update the reward, sum and the action number and last action
+    #         self.r_sum += self.current_reward
+    #         self.num_of_actions += 1
+    #
+    #         # Bellman equation for V
+    #         new_V = self.get_V(action, state_str) + self.alpha * (self.current_reward - self.get_V(action, state_str))
+    #         self.set_V_value(action, state_str, new_V)
+    #
+    #         self._action_chain.append(self.tree.action_names[action])
+    #         print("Move", self.num_of_actions, ":", self._action_chain)
+    #         return 1
 
     def max_q_0(self, action, state: DynamicLevelState):
         if self.done:
@@ -321,6 +324,7 @@ class MaxQAgent:
         self.new_state = None
         self.tree.reset()
         self._action_chain = []
+        self._last_action = -1
 
         return starting_state
 
@@ -375,7 +379,7 @@ class MaxQAgent:
             print('Number of steps:', self.num_of_actions)
             print()
 
-        plot_results(rs, self.alpha, self.gamma, num_episodes // 1000 + 1, save_plots)
+        plot_results(rs, self.alpha, self.gamma, 50, save_plots)
 
     def max_q_0_perform(self, action, state: DynamicLevelState, time_delay=0):
         if self.done:

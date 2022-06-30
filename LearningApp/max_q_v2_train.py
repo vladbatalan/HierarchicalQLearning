@@ -79,7 +79,7 @@ if __name__ == "__main__":
             "-reward": "OptimalReward"
         }
 
-        max_q_agent.init_environment(config_data, host, port)
+        max_q_agent.init_environment(config_data, host, port, use_determined_tree=True)
         max_q_agent.train(alpha=alpha, gamma=gamma, num_episodes=num_episodes, max_steps=max_steps,
                           save_plots=path.split(".")[0], batches=False)
         max_q_agent.save_model(path)

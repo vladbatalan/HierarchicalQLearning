@@ -31,7 +31,7 @@ def plot_results(rs, alpha, gamma, nr_cum=50, path_with_starting_name=None, batc
     print('Average reward per episode:', avg_reward)
 
     # Print number of times the goal was reached
-    n = number_of_episodes // 20
+    n = number_of_episodes // 10
     num_gs = np.zeros(10)
     labels = []
 

@@ -18,7 +18,7 @@ public class OptimalReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(levelLost)
-            return -5000;
+            return -2500;
 
         if(levelComplete)
             return 5000;
@@ -38,18 +38,19 @@ public class OptimalReward implements IRewardSystem {
             }
         }
 
-        // Foreach element that is active give extra reward
-        float activeAmplifier = 0;
-        int allSwitchable = 0;
-        for(StillObject stillObject : GameObjectHandler.GetStillObjects()){
-            if(stillObject instanceof ISwitchable){
-                allSwitchable ++;
-
-                if(((ISwitchable) stillObject).isActive())
-                    activeAmplifier ++;
-            }
-        }
-
-        return (allSwitchable - activeAmplifier + 1) * (-0.5) ;
+//        // Foreach element that is active give extra reward
+//        float activeAmplifier = 0;
+//        int allSwitchable = 0;
+//        for(StillObject stillObject : GameObjectHandler.GetStillObjects()){
+//            if(stillObject instanceof ISwitchable){
+//                allSwitchable ++;
+//
+//                if(((ISwitchable) stillObject).isActive())
+//                    activeAmplifier ++;
+//            }
+//        }
+//
+//        return (allSwitchable - activeAmplifier + 1) * (-0.5) ;
+        return -0.5;
     }
 }

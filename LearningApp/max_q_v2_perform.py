@@ -56,7 +56,7 @@ if __name__ == "__main__":
             "-reward": "OptimalReward"
         }
 
-        max_q_agent.init_environment(config_data, host, port)
+        max_q_agent.init_environment(config_data, host, port, use_determined_tree=True)
         max_q_agent.perform(path, 0.001)
         max_q_agent.close_env()
 
