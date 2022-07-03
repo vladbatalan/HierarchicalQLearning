@@ -53,6 +53,20 @@ class MaxQTree(abc.ABC):
     def is_primitive(self, action):
         return action < self.primitive_actions
 
+    def print(self):
+        # Print tree
+        print("Created tree:")
+        for action in range(self.action_space_size):
+            print(self.action_names[action], ": ", end="")
+
+            all_elements = []
+            for element in self.graph[action]:
+                # print("\t", element)
+                all_elements.append(self.action_names[element])
+
+            print(all_elements)
+        print()
+
 
 class NoLeverTree(MaxQTree):
     def __init__(self):
@@ -413,7 +427,7 @@ class AdvancedTree(MaxQTree):
             if player_position[0] == target_position[0] and player_position[1] == target_position[1]:
                 return 10
             return -0.1 * np.sqrt((state.player_position[0] - target_position[0]) ** 2 + (
-                        state.player_position[1] - target_position[1]) ** 2)
+                    state.player_position[1] - target_position[1]) ** 2)
 
         # If action is a space action
         if action == self.space_for_goal:
@@ -575,17 +589,7 @@ class AdvancedTreeDeterminedHighActions(MaxQTree):
         # print("Action names:", self.action_names)
 
         # Print tree
-        print("Created tree:")
-        for action in range(self.action_space_size):
-            print(self.action_names[action], ": ", end="")
-
-            all_elements = []
-            for element in self.graph[action]:
-                # print("\t", element)
-                all_elements.append(self.action_names[element])
-
-            print(all_elements)
-        print()
+        self.print()
 
     def build_tree(self, static_state: StaticLevelState):
 
@@ -613,6 +617,7 @@ class AdvancedTreeDeterminedHighActions(MaxQTree):
             succeed = (player_position[0] == target_position[0] and player_position[1] == target_position[1])
             if succeed:
                 print("Reached destination for:", self.action_names[action])
+                print("Player position:", state.player_position)
                 print()
             return succeed
 
@@ -649,7 +654,241 @@ class AdvancedTreeDeterminedHighActions(MaxQTree):
             if player_position[0] == target_position[0] and player_position[1] == target_position[1]:
                 return 10
             return -0.1 * np.sqrt((state.player_position[0] - target_position[0]) ** 2 + (
-                        state.player_position[1] - target_position[1]) ** 2)
+                    state.player_position[1] - target_position[1]) ** 2)
+
+        # If action is a space action
+        if action == self.space_for_goal:
+            # Check if the goal is active
+            if state.objective_active and player_position[0] == self.goal_position[0] and player_position[1] == \
+                    self.goal_position[1]:
+                return 10
+            return -10
+
+        # TODO: Add for choose one dest
+
+        # Don t need pseudo reward for others
+        return 0
+
+
+class DifferentPrimitivesForNavTree(MaxQTree):
+
+    def __init__(self):
+        super(DifferentPrimitivesForNavTree, self).__init__()
+        self.repeat_access_trips = None
+        self.max_access_point = None
+        self._max_repeats = None
+        self._repetitive_counter = None
+        self.repetitive_stand = None
+        self.max_goal = None
+        self.max_time_travel = None
+        self.nav_to_goal = None
+        self.nav_to_time_machine = None
+        self.nav_to_levers = None
+        self.stand_for_access = None
+        self.space_for_goal = None
+        self.space_for_teleport = None
+        self.jump_release = None
+        self.jump_press = None
+        self.stand = None
+        self.right = None
+        self.left = None
+
+    def _create_nodes(self):
+
+        # For each nav action, create primitives
+        self.env_actions = []
+        for nav_action in range(len(self.all_positions)):
+            self.env_actions += [
+                HyperActionsEnum.LEFT_PRESSED.name,
+                HyperActionsEnum.RIGHT_PRESSED.name,
+                HyperActionsEnum.JUMP_PRESSED.name,
+                HyperActionsEnum.JUMP_RELEASED.name,
+            ]
+
+        move_actions_number = 4 * len(self.all_positions)
+
+        self.space_for_teleport = move_actions_number
+        self.space_for_goal = move_actions_number + 1
+        self.stand_for_access = move_actions_number + 2
+
+        self.env_actions += [
+            HyperActionsEnum.SPACE_RELEASED.name,
+            HyperActionsEnum.SPACE_RELEASED.name,
+            HyperActionsEnum.STAND_ACTION.name
+        ]
+
+        self.primitive_actions = self.nav_offset = move_actions_number + 3
+
+        # Navigation
+        self.nav_to_levers = [self.nav_offset + i for i, value in enumerate(self.lever_positions)]
+        self.nav_to_time_machine = self.nav_offset + len(self.lever_positions)
+        self.nav_to_goal = self.nav_to_time_machine + 1
+
+        # Composed actions
+        self.max_time_travel = self.nav_to_goal + 1
+        self.max_goal = self.max_time_travel + 1
+        self.repetitive_stand = self.max_goal + 1
+        self.choose_one_dest = self.repetitive_stand + 1
+
+        # Repetitive parameters
+        #  that count how many times it was accessed
+        self.repetitive_counter[self.repetitive_stand] = 0
+        self.max_count[self.repetitive_stand] = 100
+
+        self.repetitive_counter[self.choose_one_dest] = 0
+        self.max_count[self.choose_one_dest] = 1
+
+        self.max_access_point = self.choose_one_dest + 1
+
+        self.repeat_access_trips = self.max_access_point + 1
+        self.repetitive_counter[self.repeat_access_trips] = 0
+        self.max_count[self.repeat_access_trips] = len(self.lever_positions)
+
+        self.root = self.repeat_access_trips + 1
+
+        # Root action
+        self.action_space_size = self.root + 1
+
+    def _create_action_names(self):
+        base_move_name = [
+            "MOVE_LEFT",
+            "MOVE_RIGHT",
+            "JUMP_PRESS",
+            "JUMP_RELEASE",
+        ]
+
+        self.action_names = []
+
+        for position in range(len(self.all_positions)):
+            for move_action, name in enumerate(base_move_name):
+                self.action_names.append(name + str(self.all_positions[position]))
+
+        self.action_names += [
+            "SPACE_FOR_TELEPORT",
+            "SPACE_FOR_GOAL",
+            "STAND_FOR_ACCESS"
+        ]
+
+        for i in range(len(self.all_positions)):
+            self.action_names.append("NavTo" + str(self.all_positions[i]))
+
+        self.action_names += [
+            "MaxTimeTravel",
+            "MaxGoal",
+            "RepetitiveStand",
+            "ChooseOneDest",
+            "MaxAccessPoint",
+            "RepeatAccessTrips",
+            "MaxRoot"
+        ]
+
+    def _create_graph(self):
+
+        self.graph = []
+
+        # Primitive actions
+        for primitive in range(self.primitive_actions):
+            self.graph.append(set())
+
+        # For each nav action add movement
+        primitive_index = 0
+        for navigation in self.all_positions:
+            self.graph.append({primitive_index, primitive_index + 1, primitive_index + 2, primitive_index + 3})
+            primitive_index += 4
+
+        # Max time travel - Ordered
+        self.graph.append([self.nav_to_time_machine, self.space_for_teleport])
+
+        # Max goal - Ordered
+        self.graph.append([self.nav_to_goal, self.space_for_goal])
+
+        # Repetitive stand - Repetitive
+        self.graph.append({self.stand_for_access})
+
+        # Choose one destination out of all lever points - Repetitive
+        all_access_moves = set()
+        for element in self.nav_to_levers:
+            all_access_moves.add(element)
+        self.graph.append(all_access_moves)
+
+        # Max access point - Ordered
+        self.graph.append([self.choose_one_dest, self.repetitive_stand, self.max_time_travel])
+
+        # Travel to lever times - Repetitive
+        self.graph.append({self.max_access_point})
+
+        # For root - Ordered
+        self.graph.append([self.repeat_access_trips, self.max_goal])
+
+        # print("Action names:", self.action_names)
+
+        # Print tree
+        self.print()
+
+    def build_tree(self, static_state: StaticLevelState):
+
+        self.lever_positions = static_state.lever_positions
+        self.time_machine_position = static_state.time_machine_position
+        self.goal_position = static_state.game_objective_position
+        self.all_positions = self.lever_positions + [self.time_machine_position, self.goal_position]
+
+        self._create_nodes()
+        self._create_action_names()
+        self._create_graph()
+
+    def is_terminal(self, action, done, state: DynamicLevelState, last_action=-1):
+        player_position = (int(state.player_position[0]), int(state.player_position[1]))
+        action_type = self.action_type(action)
+
+        # If game is over, return true
+        if done:
+            return True
+
+        # It is a navigation action
+        elif self.nav_offset <= action < self.nav_offset + len(self.all_positions):
+            target_position = self.all_positions[action - self.nav_offset]
+
+            succeed = (player_position[0] == target_position[0] and player_position[1] == target_position[1])
+            if succeed:
+                print("Reached destination for:", self.action_names[action])
+                print("Player position:", state.player_position)
+                print()
+            return succeed
+
+        # Repetitive actions
+        elif action_type == 3:
+            if self.repetitive_counter[action] >= self.max_count[action]:
+                self.repetitive_counter[action] = 0
+                return True
+            return False
+
+        # Ordered actions end after the last action
+        elif action_type == 2:
+            return last_action == self.graph[action][-1]
+
+        # Primitive actions
+        elif self.is_primitive(action):
+            return True
+
+    def action_type(self, action) -> int:
+        if action in [self.repetitive_stand, self.choose_one_dest, self.repeat_access_trips]:
+            return 3
+
+        if action in [self.max_access_point, self.max_goal, self.max_time_travel, self.root]:
+            return 2
+
+        return 1
+
+    def pseudo_reward(self, action, state: DynamicLevelState) -> float:
+        player_position = (int(state.player_position[0]), int(state.player_position[1]))
+
+        # It is a navigation action
+        if self.nav_offset <= action < self.nav_offset + len(self.all_positions):
+            target_position = self.all_positions[action - self.nav_offset]
+            if player_position[0] == target_position[0] and player_position[1] == target_position[1]:
+                return 10
+            return -0.1 * np.sqrt((state.player_position[0] - target_position[0]) ** 2 + (
+                    state.player_position[1] - target_position[1]) ** 2)
 
         # If action is a space action
         if action == self.space_for_goal:

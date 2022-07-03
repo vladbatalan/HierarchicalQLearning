@@ -9,9 +9,9 @@ if __name__ == "__main__":
     # Total arguments
     argument_list = sys.argv[1:]
 
-    options = "f:l:g:s:e:a:m:h:p:"
+    options = "f:l:g:s:e:a:m:h:p:r:"
 
-    long_options = ["file=", "lvl=", "graphics=", "max-steps=", "episodes=", "alpha=", "gamma=", "host=", "port="]
+    long_options = ["file=", "lvl=", "graphics=", "max-steps=", "episodes=", "alpha=", "gamma=", "host=", "port=", "reward="]
 
     try:
         path = None
@@ -23,6 +23,7 @@ if __name__ == "__main__":
         gamma = 0.99
         host = "127.0.0.1"
         port = 4303
+        reward_type = "OptimalReward"
 
         arguments, values = getopt.getopt(argument_list, options, long_options)
 
@@ -54,6 +55,9 @@ if __name__ == "__main__":
             if current_argument in ('-p', '--port'):
                 port = current_value
 
+            if current_argument in ('-r', '--reward'):
+                reward_type = current_value
+
         if path is None:
             raise Exception("There must be a valid path")
 
@@ -76,10 +80,10 @@ if __name__ == "__main__":
             "-g": graphics_mode,
             "-ctrl": "external",
             "-manual-step": "true",
-            "-reward": "OptimalReward"
+            "-reward": reward_type
         }
 
-        max_q_agent.init_environment(config_data, host, port, use_determined_tree=True)
+        max_q_agent.init_environment(config_data, host, port, tree_type="Determined")
         max_q_agent.train(alpha=alpha, gamma=gamma, num_episodes=num_episodes, max_steps=max_steps,
                           save_plots=path.split(".")[0], batches=False)
         max_q_agent.save_model(path)

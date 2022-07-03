@@ -18,7 +18,7 @@ public class PromoteAllStatesActiveReward implements IRewardSystem {
     public double evaluateReward(Level level) {
 
         if(levelLost)
-            return -5000;
+            return -2500;
 
         if(levelComplete)
             return 5000;
@@ -35,29 +35,21 @@ public class PromoteAllStatesActiveReward implements IRewardSystem {
             }
         }
 
+        // Limit old instance number
+        int instances = GameObjectHandler.GetOldInstances().size();
+        if(GameObjectHandler.GetOldInstances().size() > 5){
+            return -2 * (instances - 5);
+        }
+
         // The SPACE_ACTION was initiated
         if(playerPressedSpaceEvent){
 
             // Unsuccessful attempt
             if(!playerOnTimeMachine && !playerOnGoal){
-                return (allSwitchable + 1) * (-0.1);
-            }
-
-            if(playerOnTimeMachine){
-                // If number of frames is low, it means that the new Old instance has no purpose
-                // Penalize player
-//                if(GameObjectHandler.GetFrameNumber() < 20){
-//                    System.out.println("Frame: " + GameObjectHandler.GetFrameNumber());
-//                    return -10;
-//                }
-
-                // Limit old instance number
-                if(GameObjectHandler.GetOldInstances().size() > 5){
-                    return -10;
-                }
+                return -2;
             }
         }
 
-        return (allSwitchable - activeAmplifier) * (-0.1) ;
+        return (allSwitchable - activeAmplifier) * (-0.5) ;
     }
 }

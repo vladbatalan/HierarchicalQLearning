@@ -9,10 +9,16 @@ public class Main {
         Logger.SetIsActive(true);
 
         if(args.length != 0 && "-extern".equals(args[0])){
+            int port = 4303;
+            if(args.length == 3){
+                if("-port".equals(args[1])){
+                    port = Integer.parseInt(args[2]);
+                }
+            }
 
             // Create GameAPI for configured game if external control option enabled
             GameAPI gameAPI = new GameAPI();
-            gameAPI.startAPI(4303);
+            gameAPI.startAPI(port);
         }
         else{
 

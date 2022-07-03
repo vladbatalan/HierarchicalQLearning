@@ -90,6 +90,7 @@ class QLearningUnit:
                 print('Episode:', episode)
                 print('Reward:', reward_sum)
                 print('Explore:', str(expl_limit * 100) + '%')
+                print('Steps:', str(t))
                 print()
 
         plot_results(rs, alpha=alpha, gamma=gamma, nr_cum=num_episodes // 100 + 1,

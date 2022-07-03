@@ -34,10 +34,10 @@ class MaxQAgent:
         self.max_steps = 150
         self.current_reward = 0
 
-    def init_environment(self, args, host, port, use_determined_tree=False):
+    def init_environment(self, args, host, port, tree_type: str = "Advanced"):
         self.env.start_env(host, port, args)
         self.static_state = self.env.static_state
-        self._use_determined_tree = use_determined_tree
+        self._tree_type = tree_type
         self._build_max_q_graph()
 
     def _build_max_q_graph(self):
@@ -51,10 +51,12 @@ class MaxQAgent:
         if len(self.lever_positions) == 0:
             self.tree = NoLeverTree()
         else:
-            if not self._use_determined_tree:
+            if self._tree_type == "Advanced":
                 self.tree = AdvancedTree()
-            else:
+            elif self._tree_type == "Determined":
                 self.tree = AdvancedTreeDeterminedHighActions()
+            else:
+                self.tree = DifferentPrimitivesForNavTree()
 
         self.tree.build_tree(self.static_state)
 
@@ -99,6 +101,10 @@ class MaxQAgent:
         # State as string
         state_str = str(state.basic_state_form())
 
+        if from_action == 14:
+            print("Choosing action for One Dest:")
+            print("\tChildren:", [self.tree.action_names[act] for act in self.tree.graph[from_action]])
+
         # For each child action, that is primitive or not terminal, add it's cumulative value
         for child_action in self.tree.graph[from_action]:
 
@@ -114,6 +120,11 @@ class MaxQAgent:
         # print("\tQ Arr:", q_arr)
         # print("\tPosible actions:", [self.tree.action_names[act] for act in possible_action_arr])
         max_arg = np.argmax(q_arr)
+
+        if from_action == 14:
+            print("\tPossible actions:", [self.tree.action_names[act] for act in possible_action_arr])
+            print("\tBest action:", self.tree.action_names[possible_action_arr[max_arg]])
+            print()
 
         if np.random.rand(1) < eps:
             # Choose random action
@@ -134,30 +145,6 @@ class MaxQAgent:
             # Choose the best valued action
             # print("\t\tChosen action:", self.tree.action_names[possible_action_arr[max_arg]])
             return possible_action_arr[max_arg]
-
-    # def max_q_q(self, action, state: DynamicLevelState):
-    #     if self.done:
-    #         return
-    #
-    #     self.done = False
-    #     state_str = str(state.basic_state_form())
-    #
-    #     # Action is primitive
-    #     if self.is_primitive(action):
-    #         # Step ahead in env
-    #         self.new_state, self.current_reward, self.done = self.env.step(self.tree.env_actions[action])
-    #
-    #         # Update the reward, sum and the action number and last action
-    #         self.r_sum += self.current_reward
-    #         self.num_of_actions += 1
-    #
-    #         # Bellman equation for V
-    #         new_V = self.get_V(action, state_str) + self.alpha * (self.current_reward - self.get_V(action, state_str))
-    #         self.set_V_value(action, state_str, new_V)
-    #
-    #         self._action_chain.append(self.tree.action_names[action])
-    #         print("Move", self.num_of_actions, ":", self._action_chain)
-    #         return 1
 
     def max_q_0(self, action, state: DynamicLevelState):
         if self.done:
@@ -328,7 +315,8 @@ class MaxQAgent:
 
         return starting_state
 
-    def train(self, max_steps, num_episodes, alpha=0.5, gamma=0.99, save_plots=None, batches=False):
+    def train(self, max_steps, num_episodes, alpha=0.5, gamma=0.99, save_plots=None, batches=False,
+              with_perform_test=True):
 
         save_plots_root = save_plots.split(".")[0]
 
@@ -340,8 +328,12 @@ class MaxQAgent:
         eps_decay = 0
         # eps_decay = (self.eps - 0.1) / num_episodes
 
+        # For batch strategy
         batch_size = num_episodes // 20
         batch_wins = 0
+
+        # For perform test
+        perform_at = 50
 
         # For plot usage
         rs = np.zeros(num_episodes)
@@ -358,11 +350,11 @@ class MaxQAgent:
             # Decay epsilon
             self.eps -= eps_decay
 
-            batch_number = episode//batch_size
-            if (episode-1)//batch_size != batch_number:
+            batch_number = episode // batch_size
+            if (episode - 1) // batch_size != batch_number:
                 # We entered into next batch
                 # Check the number of wins in order to stop the model
-                if batch_wins > batch_size/2 and batches is True:
+                if batch_wins > batch_size / 2 and batches is True:
                     # Make a save of the batch
                     plot_file = save_plots_root
                     model_path = save_plots_root + "_batch_" + str(batch_number) + ".txt"
@@ -379,9 +371,20 @@ class MaxQAgent:
             print('Number of steps:', self.num_of_actions)
             print()
 
-        plot_results(rs, self.alpha, self.gamma, 50, save_plots)
+            # Once every perform_at episodes, try to perform
+            if with_perform_test is True and (episode + 1) % perform_at == 0:
 
-    def max_q_0_perform(self, action, state: DynamicLevelState, time_delay=0):
+                print("Perform at episode", episode)
+                reward = self.perform(0, max_steps=max_steps)
+
+                # If level is won, keep the model, stop training
+                if reward > 0:
+                    num_episodes = episode
+                    break
+
+        plot_results(rs[0:num_episodes], self.alpha, self.gamma, 50, save_plots)
+
+    def max_q_0_perform(self, action, state: DynamicLevelState, time_delay=0, max_steps=None):
         if self.done:
             return
 
@@ -398,7 +401,8 @@ class MaxQAgent:
             self.num_of_actions += 1
 
             self._action_chain.append(self.tree.action_names[action])
-            print("Move", self.num_of_actions, ":", self._action_chain)
+            if max_steps is None:
+                print("Move", self.num_of_actions, ":", self._action_chain)
             return 1
 
         else:
@@ -420,16 +424,19 @@ class MaxQAgent:
                     self._clear_action_list_until(action)
 
                     # It is a simple action
-                    # Choose an action accordingly to epsilon = 0.001
-                    next_action = self.choose_action(action, state, 0.001)
+                    # Choose an action accordingly to epsilon = 0
+                    next_action = self.choose_action(action, state, 0)
 
-                    n = self.max_q_0_perform(next_action, state, time_delay)
+                    n = self.max_q_0_perform(next_action, state, time_delay, max_steps)
                     self._last_action = next_action
 
                     state = self.new_state
 
                     # Update number of actions and the state
                     count_actions += n
+
+                    if max_steps is not None and self.num_of_actions >= max_steps:
+                        self.done = True
 
                     # print("Is terminal from max q:")
                     is_terminal = self.is_terminal(action, self.done, state, self._last_action)
@@ -441,8 +448,6 @@ class MaxQAgent:
                     for next_action in self.tree.graph[action]:
 
                         self._clear_action_list_until(action)
-                        if not self.tree.is_primitive(next_action):
-                            self._action_chain.append(self.tree.action_names[next_action])
 
                         # If the action ended prematurely
                         if is_terminal:
@@ -450,13 +455,16 @@ class MaxQAgent:
 
                         # Execute node only once
                         # Do maxQ for child and state
-                        n = self.max_q_0_perform(next_action, state, time_delay=time_delay)
+                        n = self.max_q_0_perform(next_action, state, time_delay=time_delay, max_steps=max_steps)
                         self._last_action = next_action
 
                         state = self.new_state
 
                         # Update number of actions and the state
                         count_actions += n
+
+                        if max_steps is not None and self.num_of_actions >= max_steps:
+                            self.done = True
 
                         # print("Is terminal from max q:")
                         is_terminal = self.is_terminal(action, self.done, state, self._last_action)
@@ -465,7 +473,7 @@ class MaxQAgent:
 
                     # This is a repetitive action. It executes of self.tree.max_counter[action] times and finishes
                     # Repetitive actions can have more children
-                    next_action = self.choose_action(action, state, 0.001)
+                    next_action = self.choose_action(action, state, 0)
                     self.tree.repetitive_counter[action] = 0
 
                     for times in range(self.tree.max_count[action]):
@@ -477,7 +485,7 @@ class MaxQAgent:
                             return count_actions
 
                         # Do maxQ for child
-                        n = self.max_q_0_perform(next_action, state, time_delay=time_delay)
+                        n = self.max_q_0_perform(next_action, state, time_delay=time_delay, max_steps=max_steps)
                         self._last_action = next_action
 
                         # Update current state
@@ -485,6 +493,9 @@ class MaxQAgent:
 
                         # Update number of actions and the state
                         count_actions += n
+
+                        if max_steps is not None and self.num_of_actions >= max_steps:
+                            self.done = True
 
                         # Repeat 1
                         self.tree.repetitive_counter[action] += 1
@@ -494,27 +505,30 @@ class MaxQAgent:
 
             return count_actions
 
-    def perform(self, model_path: str, time_delay=0):
-        self.load_model(model_path)
+    def perform(self, time_delay=0, max_steps=None):
+
+        print("Prepare env for performing:")
 
         # Reset the env
-        state = self.env.reset()
-        self.reset()
+        state = self.reset()
 
-        self.max_q_0_perform(self.tree.root, state, time_delay)
+        self.max_q_0_perform(self.tree.root, state, time_delay, max_steps)
         state = self.new_state
         reward_sum = self.r_sum
         time_passed = self.num_of_actions
 
         if not state.lost and not state.complete:
-            print('Level was not completed, nor lost.')
+            print('\tLevel was not completed, nor lost.')
         elif state.lost:
-            print('Level lost.')
+            print('\tLevel lost.')
         elif state.complete:
-            print('Level complete.')
+            print('\tLevel complete.')
 
-        print('Reward:', reward_sum)
-        print('Steps:', time_passed)
+        print('\tReward:', reward_sum)
+        print('\tSteps:', time_passed)
+        print()
+
+        return reward_sum
 
     def save_model(self, path):
 
@@ -600,20 +614,20 @@ class MaxQAgent:
             return self._C[action][state_str]
         return self._C[action][state_str][action2]
 
-    def get_C_hat(self, action, state_str: str, action2=None):
-        if state_str not in self._C_hat[action].keys():
-            self._C_hat[action][state_str] = np.zeros(self.tree.action_space_size)
-        if action2 is None:
-            return self._C_hat[action][state_str]
-        return self._C_hat[action][state_str][action2]
+    # def get_C_hat(self, action, state_str: str, action2=None):
+    #     if state_str not in self._C_hat[action].keys():
+    #         self._C_hat[action][state_str] = np.zeros(self.tree.action_space_size)
+    #     if action2 is None:
+    #         return self._C_hat[action][state_str]
+    #     return self._C_hat[action][state_str][action2]
 
     def set_C_value(self, action, state_str: str, action2, new_value):
         self.get_C(action, state_str)
         self._C[action][state_str][action2] = new_value
 
-    def set_C_hat_value(self, action, state_str: str, action2, new_value):
-        self.get_C_hat(action, state_str)
-        self._C_hat[action][state_str][action2] = new_value
+    # def set_C_hat_value(self, action, state_str: str, action2, new_value):
+    #     self.get_C_hat(action, state_str)
+    #     self._C_hat[action][state_str][action2] = new_value
 
     def set_V_value(self, action, state_str: str, new_value, is_copy=False):
         self.get_V(action, state_str, is_copy=is_copy)
