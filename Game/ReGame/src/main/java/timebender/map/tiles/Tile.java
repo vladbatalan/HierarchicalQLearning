@@ -1,7 +1,5 @@
 package timebender.map.tiles;
 
-import timebender.map.tiles.types.TileType;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 

@@ -1,7 +1,7 @@
 package timebender.map.tiles.tilecollisiontypes;
 
 import timebender.map.tiles.Tile;
-import timebender.map.tiles.types.TileType;
+import timebender.map.tiles.TileType;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

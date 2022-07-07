@@ -5,7 +5,7 @@ import timebender.Game;
 import timebender.assets.ImageLoader;
 import timebender.gameobjects.camera.GameCamera;
 import timebender.map.tiles.Tile;
-import timebender.map.tiles.types.TileFactory;
+import timebender.map.tiles.TileFactory;
 import timebender.map.utils.MapUtils;
 import timebender.physics.utils.PointVector;
 

@@ -2,9 +2,8 @@ package timebender.map;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import timebender.Logger;
 import timebender.map.tiles.Tile;
-import timebender.map.tiles.types.TileFactory;
+import timebender.map.tiles.TileFactory;
 import timebender.map.xmlobj.MapXmlComponent;
 
 import java.io.File;

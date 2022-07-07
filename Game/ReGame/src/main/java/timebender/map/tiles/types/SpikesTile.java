@@ -1,6 +1,7 @@
 package timebender.map.tiles.types;
 
 import timebender.assets.Assets;
+import timebender.map.tiles.TileType;
 import timebender.map.tiles.tilecollisiontypes.BottomHalfTile;
 
 public class SpikesTile extends BottomHalfTile {

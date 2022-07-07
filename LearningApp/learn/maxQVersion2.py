@@ -1,7 +1,5 @@
-import numpy as np
 
 from api.env.customenv import CustomEnv
-from api.stateDeserializer import DynamicLevelState
 from learn.maxq_v2_tree.trees import *
 from learn.util.utils import plot_results
 
@@ -316,7 +314,7 @@ class MaxQAgent:
         return starting_state
 
     def train(self, max_steps, num_episodes, alpha=0.5, gamma=0.99, save_plots=None, batches=False,
-              with_perform_test=True):
+              with_perform_test=False):
 
         save_plots_root = save_plots.split(".")[0]
 
